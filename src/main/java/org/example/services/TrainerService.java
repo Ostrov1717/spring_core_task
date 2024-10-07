@@ -35,13 +35,7 @@ public class TrainerService {
            userName+=alingments;
         }
         trainer.setUsername(userName);
-
-        Random random=new Random();
-        String password= Stream.generate(()->(char)random.nextInt(33,122))
-                .filter(Character::isLetter)
-                .limit(10)
-                .map(String::valueOf)
-                .collect(Collectors.joining());
+        String password=trainer.madePassword();
         trainer.setPassword(password);
         trainer.setSpecialization(specialization);
         dao.save(trainer);

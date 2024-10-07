@@ -1,0 +1,10 @@
+Trainer,1,Tim,Wallace,Tim.Wallace,1234,true,YOGA
+Trainer,2,Tom,Robins,Tom.Robins,1234,true,FITNESS
+Trainer,3,Bob,Getty,Bob.Getty,1234,true,STRETCHING
+Trainer,4,Mary,Popins,Mary.Popins,1234,true,RESISTANCE
+Trainer,5,Jack,Daniels,Jack.Daniels,1234,true,YOGA
+Trainee,1,Olga,Kurilenko,Olga.Kurilenko,1234,true,California,1989-10-05
+Trainee,2,Kim,Johnson,Kim.Johnson,1234,true,Chicago,1986-12-30
+Trainee,3,Tomas,Kuk,tomas.kuk,1234,true,Sweden Oslo,1972-02-01
+Trainee,4,George,The Third,George.TheThird,1234,true,UK,1962-05-05
+Training,1,2,3,Sunday morning training,STRETCHING,2022-12-09T18:19:26,PT1H30M15S

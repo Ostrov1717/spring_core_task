@@ -3,11 +3,10 @@ package org.example.services;
 import org.example.dao.TraineeDAO;
 import org.example.model.Trainee;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
-import java.util.Random;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Service
 public class TraineeService {
@@ -32,12 +31,7 @@ public class TraineeService {
             userName+=alingments;
         }
         trainee.setUsername(userName);
-        Random random=new Random();
-        String password= Stream.generate(()->(char)random.nextInt(33,122))
-                .filter(Character::isLetter)
-                .limit(10)
-                .map(String::valueOf)
-                .collect(Collectors.joining());
+        String password=trainee.madePassword();
         trainee.setPassword(password);
         trainee.setAddress(address);
         trainee.setDateOfBirth(dateOfBirth);
@@ -55,5 +49,8 @@ public class TraineeService {
     }
     public void delete(long id){
         dao.delete(id);
+    }
+    public List<Trainee> getAll(){
+        return new ArrayList<>(dao.getAll().values());
     }
 }

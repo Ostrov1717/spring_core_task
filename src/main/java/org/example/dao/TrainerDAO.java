@@ -42,13 +42,4 @@ public class TrainerDAO implements Dao<Trainer> {
        return findById(entity.getUserId());
     }
 
-    @PostConstruct
-    public void init(){
-            System.out.println("init methods");
-            storage.save(Trainer.class,1L, new Trainer(1L, "Tim", "Wallace", "tim.wallace", "1234", true, TrainingType.YOGA));
-            storage.save(Trainer.class,2L,new Trainer(2L, "Tom", "Robins", "tom.robins", "1234", true, TrainingType.FITNESS));
-            storage.save(Trainer.class,3L, new Trainer(3L, "Bob", "Getty", "bob.getty", "1234", true, TrainingType.STRETCHING));
-            storage.save(Trainer.class,4L,new Trainer(4L, "Mary", "Popins", "mary.popins", "1234", true, TrainingType.RESISTANCE));
-            storage.save(Trainer.class,5L,new Trainer(5L, "Jack", "Daniels", "jack.daniels", "1234", true, TrainingType.YOGA));
-        }
 }

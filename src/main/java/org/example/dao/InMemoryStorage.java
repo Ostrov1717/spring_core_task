@@ -1,16 +1,29 @@
 package org.example.dao;
 
+import jakarta.annotation.PostConstruct;
+import org.example.model.Trainee;
+import org.example.model.Trainer;
+import org.example.model.Training;
+import org.example.model.TrainingType;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Component
 public class InMemoryStorage {
         // Общее хранилище, где ключ - это класс сущности, а значение - карта с данными
         private Map<Class<?>, Map<Long, Object>> storage = new HashMap<>();
+        @Value("${storage.init.file}")
+        private String initFilePath;
 
         // Метод для получения карты по типу сущности
         private Map<Long, Object> getNamespace(Class<?> entityClass) {
@@ -44,4 +57,45 @@ public class InMemoryStorage {
             }
             return result;
         }
+    @PostConstruct
+    public void init(){
+        System.out.println(initFilePath);
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(initFilePath)))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (line.startsWith("Trainer")) {
+                    Long id = Long.parseLong(parts[1]);
+                    String firstName = parts[2];
+                    String lastName = parts[3];
+                    String username = parts[4];
+                    String password=parts[5];
+                    boolean isActive=Boolean.parseBoolean(parts[6]);
+                    TrainingType specialization = TrainingType.valueOf(parts[7]);
+                    Trainer trainer = new Trainer(id,firstName,lastName,username,password,isActive,specialization);
+                    this.save(Trainer.class,id, trainer);
+                } else if (line.startsWith("Trainee")) {
+                    Long id = Long.parseLong(parts[1]);
+                    boolean isActive=Boolean.parseBoolean(parts[6]);
+                    LocalDate dateOfBirth=LocalDate.parse(parts[8]);
+                    Trainee trainee = new Trainee(id,parts[2],parts[3],parts[4],parts[5],isActive,parts[7],dateOfBirth);
+                    this.save(Trainee.class,id, trainee);
+                } else if (line.startsWith("Training")) {
+                    Long id = Long.parseLong(parts[1]);
+                    Long traineeId = Long.parseLong(parts[2]);
+                    Long trainerId = Long.parseLong(parts[3]);
+                    String name=parts[4];
+                    TrainingType type = TrainingType.valueOf(parts[5]);
+                    LocalDateTime date=LocalDateTime.parse(parts[6]);
+                    Duration duration=Duration.parse(parts[7]);
+                    Training training = new Training(id,traineeId,trainerId,name,type,date,duration);
+                    this.save(Training.class,id,training);
+                } else {
+                    throw new IllegalArgumentException("Unknown type: " + parts[0]);
+                }
+            }
+        } catch (IOException|IllegalArgumentException e) {
+            e.printStackTrace();
+        }
     }
+}

@@ -2,6 +2,8 @@ package org.example.model;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.Objects;
 
 public class Training {
@@ -10,12 +12,13 @@ public class Training {
     private long trainerId;
     private String trainingName;
     private TrainingType trainingType;
-    private LocalDate trainingDate;
+    private LocalDateTime trainingDate;
     private Duration trainingDuration;
+
 
     public Training(){}
 
-    public Training(long trainingId, long traineeId, long trainerId, String trainingName, TrainingType trainingType, LocalDate trainingDate, Duration trainingDuration) {
+    public Training(long trainingId, long traineeId, long trainerId, String trainingName, TrainingType trainingType, LocalDateTime trainingDate, Duration trainingDuration) {
         this.trainingId = trainingId;
         this.traineeId = traineeId;
         this.trainerId = trainerId;
@@ -65,11 +68,11 @@ public class Training {
         this.trainingType = trainingType;
     }
 
-    public LocalDate getTrainingDate() {
+    public LocalDateTime getTrainingDate() {
         return trainingDate;
     }
 
-    public void setTrainingDate(LocalDate trainingDate) {
+    public void setTrainingDate(LocalDateTime trainingDate) {
         this.trainingDate = trainingDate;
     }
 
@@ -109,5 +112,21 @@ public class Training {
         result = 31 * result + (trainingDate != null ? trainingDate.hashCode() : 0);
         result = 31 * result + (trainingDuration != null ? trainingDuration.hashCode() : 0);
         return result;
+    }
+
+
+    @Override
+    public String toString() {
+        String duration=String.format("%02d:%02d:%02d", trainingDuration.toHours(), trainingDuration.toMinutesPart(), trainingDuration.toSecondsPart());
+        final StringBuffer sb = new StringBuffer("Training{");
+        sb.append("trainingId=").append(trainingId);
+        sb.append(", traineeId=").append(traineeId);
+        sb.append(", trainerId=").append(trainerId);
+        sb.append(", trainingName='").append(trainingName).append('\'');
+        sb.append(", trainingType=").append(trainingType);
+        sb.append(", trainingDate=").append(trainingDate);
+        sb.append(", trainingDuration=").append(duration);
+        sb.append('}');
+        return sb.toString();
     }
 }

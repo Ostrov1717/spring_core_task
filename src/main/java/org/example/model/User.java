@@ -1,6 +1,9 @@
 package org.example.model;
 
 import java.util.Objects;
+import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 abstract class User {
     private String firstName;
@@ -56,6 +59,15 @@ abstract class User {
 
     public void setActive(boolean active) {
         isActive = active;
+    }
+    public String madePassword(){
+        Random random=new Random();
+        String password= Stream.generate(()->(char)random.nextInt(33,122))
+                .filter(Character::isLetter)
+                .limit(10)
+                .map(String::valueOf)
+                .collect(Collectors.joining());
+        return password;
     }
 
     @Override

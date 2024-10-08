@@ -19,9 +19,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class InMemoryStorage {
-        // Общее хранилище, где ключ - это класс сущности, а значение - карта с данными
-        private Map<Class<?>, Map<Long, Object>> storage = new HashMap<>();
+public class InMemoryStorage implements Storage {
+
+        private final Map<Class<?>, Map<Long, Object>> storage = new HashMap<>();
         @Value("${storage.init.file}")
         private String initFilePath;
 
@@ -31,24 +31,28 @@ public class InMemoryStorage {
         }
 
         // Сохранение объекта в конкретное пространство имён
+        @Override
         public <T> void save(Class<T> entityClass, Long id, T entity) {
             Map<Long, Object> namespace = getNamespace(entityClass);
             namespace.put(id, entity);
         }
 
         // Получение объекта по id и типу сущности
+        @Override
         public <T> T findById(Class<T> entityClass, Long id) {
             Map<Long, Object> namespace = getNamespace(entityClass);
             return entityClass.cast(namespace.get(id));
         }
 
         // Удаление объекта по id и типу сущности
+        @Override
         public <T> void delete(Class<T> entityClass, Long id) {
             Map<Long, Object> namespace = getNamespace(entityClass);
             namespace.remove(id);
         }
 
         // Получение всех объектов конкретного типа
+        @Override
         public <T> Map<Long, T> getAll(Class<T> entityClass) {
             Map<Long, Object> namespace = getNamespace(entityClass);
             Map<Long, T> result = new HashMap<>();

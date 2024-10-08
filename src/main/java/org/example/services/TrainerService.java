@@ -1,28 +1,27 @@
 package org.example.services;
 
-import org.example.dao.TrainerDAO;
+import org.example.dao.GenericDAO;
 import org.example.model.Trainer;
 import org.example.model.TrainingType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class TrainerService {
-    private final TrainerDAO dao;
+    private final GenericDAO<Trainer> dao;
     private long nextId;
 
-    public TrainerService(TrainerDAO dao) {
+    @Autowired
+    public TrainerService(GenericDAO<Trainer> dao) {
         this.dao = dao;
         this.nextId = dao.getAll().keySet().stream().max(Long::compareTo).orElse(0L);
     }
     public void create(String firstName, String lastName, TrainingType specialization){
         Trainer trainer=new Trainer();
-        trainer.setUserId(++nextId);
+        long id=++nextId;
+        trainer.setUserId(id);
         trainer.setFirstName(firstName);
         trainer.setLastName(lastName);
         trainer.setActive(true);
@@ -38,19 +37,19 @@ public class TrainerService {
         String password=trainer.madePassword();
         trainer.setPassword(password);
         trainer.setSpecialization(specialization);
-        dao.save(trainer);
+        dao.save(trainer,id);
     }
     public Trainer selectByUsername(String username){
-        Trainer trainer=dao.getAll().values().stream().filter(el->el.getUsername().equals(username)).findFirst().orElse(null);
-        return trainer;
+        return getAll().stream().filter(el->el.getUsername().equals(username)).findFirst().orElse(null);
     }
 
     public void update(String firstName, String lastName,  String userName, TrainingType specialization,boolean isActive){
         Trainer trainer=selectByUsername(userName);
+        long id=trainer.getUserId();
         trainer.setFirstName(firstName);
         trainer.setLastName(lastName);
         trainer.setActive(isActive);
-        dao.save(trainer);
+        dao.save(trainer,id);
     }
     public List<Trainer> getAll(){
         return new ArrayList<>(dao.getAll().values());

@@ -14,7 +14,6 @@ import java.io.InputStreamReader;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,7 +21,7 @@ import java.util.Map;
 public class InMemoryStorage implements Storage {
 
         private final Map<Class<?>, Map<Long, Object>> storage = new HashMap<>();
-        @Value("${storage.init.file}")
+
         private String initFilePath;
 
         // Метод для получения карты по типу сущности
@@ -32,9 +31,9 @@ public class InMemoryStorage implements Storage {
 
         // Сохранение объекта в конкретное пространство имён
         @Override
-        public <T> void save(Class<T> entityClass, Long id, T entity) {
+        public <T> T save(Class<T> entityClass, Long id, T entity) {
             Map<Long, Object> namespace = getNamespace(entityClass);
-            namespace.put(id, entity);
+            return entityClass.cast(namespace.put(id, entity));
         }
 
         // Получение объекта по id и типу сущности
@@ -61,6 +60,10 @@ public class InMemoryStorage implements Storage {
             }
             return result;
         }
+    @Value("${storage.init.file}")
+    public void setInitFilePath(String initFilePath) {
+        this.initFilePath = initFilePath;
+    }
     @PostConstruct
     public void init(){
         System.out.println(initFilePath);
@@ -69,7 +72,7 @@ public class InMemoryStorage implements Storage {
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
                 if (line.startsWith("Trainer")) {
-                    Long id = Long.parseLong(parts[1]);
+                    long id = Long.parseLong(parts[1]);
                     String firstName = parts[2];
                     String lastName = parts[3];
                     String username = parts[4];
@@ -79,15 +82,15 @@ public class InMemoryStorage implements Storage {
                     Trainer trainer = new Trainer(id,firstName,lastName,username,password,isActive,specialization);
                     this.save(Trainer.class,id, trainer);
                 } else if (line.startsWith("Trainee")) {
-                    Long id = Long.parseLong(parts[1]);
+                    long id = Long.parseLong(parts[1]);
                     boolean isActive=Boolean.parseBoolean(parts[6]);
                     LocalDate dateOfBirth=LocalDate.parse(parts[8]);
                     Trainee trainee = new Trainee(id,parts[2],parts[3],parts[4],parts[5],isActive,parts[7],dateOfBirth);
                     this.save(Trainee.class,id, trainee);
                 } else if (line.startsWith("Training")) {
-                    Long id = Long.parseLong(parts[1]);
-                    Long traineeId = Long.parseLong(parts[2]);
-                    Long trainerId = Long.parseLong(parts[3]);
+                    long id = Long.parseLong(parts[1]);
+                    long traineeId = Long.parseLong(parts[2]);
+                    long trainerId = Long.parseLong(parts[3]);
                     String name=parts[4];
                     TrainingType type = TrainingType.valueOf(parts[5]);
                     LocalDateTime date=LocalDateTime.parse(parts[6]);

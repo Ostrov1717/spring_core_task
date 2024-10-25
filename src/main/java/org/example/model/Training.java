@@ -42,15 +42,6 @@ public class Training implements Serializable {
         this.trainingDate = trainingDate;
         this.trainingDuration = trainingDuration;
     }
-    //    public Training(long trainingId, long traineeId, long trainerId, String trainingName, TrainingType trainingType, LocalDateTime trainingDate, Duration trainingDuration) {
-//        this.trainingId = trainingId;
-//        this.traineeId = traineeId;
-//        this.trainerId = trainerId;
-//        this.trainingName = trainingName;
-//        this.trainingType = trainingType;
-//        this.trainingDate = trainingDate;
-//        this.trainingDuration = trainingDuration;
-//    }
 
     @Override
     public String toString() {

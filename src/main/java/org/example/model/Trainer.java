@@ -27,7 +27,6 @@ public class Trainer implements Serializable {
     private Set<Trainee> trainees = new HashSet<>();
 
     @OneToMany(mappedBy = "trainer")
-    @org.hibernate.annotations.OrderBy(clause = "trainingDate DESC")
     private Set<Training> trainings = new HashSet<>();
 
 

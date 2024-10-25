@@ -36,27 +36,9 @@ public class Trainee implements Serializable {
     public Trainee() {
     }
 
-    public Trainee(String firstName, String lastName, String username, String password, boolean isActive, String address, LocalDate dateOfBirth) {
+    public Trainee(User user, String address, LocalDate dateOfBirth) {
         this.address = address;
         this.dateOfBirth = dateOfBirth;
-        this.user = new User(firstName, lastName, username, password, isActive);
-    }
-
-    //    public Trainee(long traineeId, String firstName, String lastName, String username, String password, boolean isActive, String address, LocalDate dateOfBirth) {
-//        super(firstName, lastName, username, password, isActive);
-//        this.traineeId = traineeId;
-//        this.address = address;
-//        this.dateOfBirth = dateOfBirth;
-//    }
-
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("Trainee{");
-        sb.append("userId=").append(traineeId);
-        sb.append(super.toString());
-        sb.append(", address='").append(address).append('\'');
-        sb.append(", dateOfBirth=").append(dateOfBirth);
-        sb.append('}');
-        return sb.toString();
+        this.user = user;
     }
 }

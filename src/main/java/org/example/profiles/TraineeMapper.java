@@ -4,7 +4,7 @@ import org.example.model.Trainee;
 
 public class TraineeMapper {
 
-    public static TraineeProfile traineeToTraineeProfile(Trainee trainee){
+    public static TraineeProfile toProfile(Trainee trainee){
         if(trainee==null) {
             return null;
         }

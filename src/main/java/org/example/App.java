@@ -6,12 +6,16 @@ import jakarta.persistence.Persistence;
 import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
 import org.example.config.ProjectConfig;
+import org.example.model.Trainee;
 import org.example.model.Trainer;
 import org.example.model.TrainingType;
 import org.example.model.enums.TrainingTypeName;
+import org.example.services.TraineeService;
 import org.example.services.TrainerService;
+import org.example.services.TrainingService;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 
 @Slf4j
@@ -25,18 +29,21 @@ public class App {
 
         var context = new AnnotationConfigApplicationContext(ProjectConfig.class);
         TrainerService trainerService=context.getBean(TrainerService.class);
-//        trainerService.create("Helen","Doron", TrainingTypeName.ZUMBA);
-//        trainerService.create("Monica","Dobs",TrainingTypeName.FITNESS);
-//
-//        trainerService.create("Wallace", "Tim",TrainingTypeName.YOGA);
-//        trainerService.create("Tom", "Robins",TrainingTypeName.FITNESS);
-//        trainerService.create("Bob", "Getty",TrainingTypeName.STRETCHING);
-//        trainerService.create("Mary", "Popins",TrainingTypeName.RESISTANCE);
-//        trainerService.create("Jack", "Daniels",TrainingTypeName.YOGA);
-//        trainerService.create("Jack", "Daniels",TrainingTypeName.RESISTANCE);
-        System.out.println(trainerService.selectById(1L));
-//        System.out.println(trainerService.deActivate("Helen.Doron","1"));
-        System.out.println(trainerService.activate("Helen.Doron","1"));
+        TraineeService traineeService=context.getBean(TraineeService.class);
+        TrainingService trainingService=context.getBean(TrainingService.class);
+
+        trainerService.create("Helen","Doron", TrainingTypeName.ZUMBA);
+        trainerService.create("Monica","Dobs",TrainingTypeName.FITNESS);
+        trainerService.create("Wallace", "Tim",TrainingTypeName.YOGA);
+        trainerService.create("Tom", "Robins",TrainingTypeName.FITNESS);
+        trainerService.create("Bob", "Getty",TrainingTypeName.STRETCHING);
+        trainerService.create("Mary", "Popins",TrainingTypeName.RESISTANCE);
+        trainerService.create("Jack", "Daniels",TrainingTypeName.YOGA);
+
+        traineeService.create("Olga","Kurilenko","California", LocalDate.parse("1989-10-05"));
+        traineeService.create("Kim","Johnson","Chicago", LocalDate.parse("1986-12-30"));
+        traineeService.create("Tomas","Kuk","Sweden Oslo", LocalDate.parse("1972-02-01"));
+        traineeService.create("George","TheThird","UK", LocalDate.parse("1962-05-05"));
 
 
 

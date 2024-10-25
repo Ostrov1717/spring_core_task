@@ -1,92 +1,148 @@
 package org.example.services;
 
+import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.example.dao.TraineeRepository;
 import org.example.model.Trainee;
 import org.example.model.User;
+import org.example.profiles.TraineeMapper;
+import org.example.profiles.TraineeProfile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 @Service
 @Slf4j
 public class TraineeService {
-    private TraineeRepository dao;
+    private TraineeRepository traineeRepository;
 
     @Autowired
-    public void setDao(TraineeRepository dao) {
-        this.dao = dao;
+    public TraineeService(TraineeRepository traineeRepository) {
+        this.traineeRepository = traineeRepository;
     }
 
-    public Optional<Trainee> create(@NonNull String firstName, @NonNull String lastName, String address, LocalDate dateOfBirth) {
-        log.info("Creation of new Trainee: {} {}", firstName, lastName);
-        if (firstName.isBlank() || lastName.isBlank()) {
-            log.error("Impossible to create new Trainee: blank firstname or lastname");
-            throw new IllegalArgumentException("Trainee without firstname and lastname cannot be created !");
+    @Transactional
+    public Optional<TraineeProfile> create(@NonNull String firstName, @NonNull String lastName, String address, LocalDate dateOfBirth) {
+        validateNames(firstName, lastName);
+        log.info("Creating a new Trainer: {} {}", firstName, lastName);
+        Trainee trainee = new Trainee(new User(firstName, lastName, generateUserName(firstName, lastName), generatePassword(), false), address, dateOfBirth);
+        traineeRepository.save(trainee);
+        log.info("Trainer created with username: {}", trainee.getUser().getUsername());
+        return Optional.of(TraineeMapper.toProfile(trainee));
+    }
+
+    @Transactional
+    public Optional<TraineeProfile> findById(Long id) {
+        log.info("Searching Trainer by Id: {}", id);
+        Trainee trainee = traineeRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Trainee not found"));
+        initializeLazyCollections(trainee);
+        return Optional.of(TraineeMapper.toProfile(trainee));
+    }
+
+    @Transactional
+    public Optional<TraineeProfile> findByUsername(String username) {
+        log.info("Searching Trainee by username: {}", username);
+        Trainee trainee = findTraineeByUsername(username);
+        initializeLazyCollections(trainee);
+        return Optional.of(TraineeMapper.toProfile(trainee));
+    }
+
+    @Transactional
+    public boolean changePassword(String username, String oldPassword, String newPassword) {
+        if (login(username, oldPassword)) {
+            Trainee trainee = findTraineeByUsername(username);
+            trainee.getUser().setPassword(newPassword);
+            return true;
         }
-        String userName = getUsername(firstName, lastName);
-        String password = madePassword();
-        Trainee trainee = new Trainee(firstName, lastName, userName, password, true, address, dateOfBirth);
-        log.info("Trainee has been created with Id: {}, username: {}", null, userName);
-        return Optional.of(dao.save(trainee));
+        return false;
     }
 
-    public Optional<Trainee> selectById(long id) {
-        log.info("Search Trainee by Id: {}", id);
-        return dao.findById(id);
-    }
-
-    public Optional<Trainee> selectByUsername(String username) {
-        log.info("Search Trainee by username: {}", username);
-        return getAll().stream().filter(el -> el.getUser().getUsername().equals(username)).findFirst();
-    }
-
-    public void update(String firstName, String lastName, String userName, String address, LocalDate dateOfBirth, boolean isActive) throws IllegalArgumentException {
-        log.info("Updating Trainee's data with username: {}", userName);
-        Trainee trainee = selectByUsername(userName).orElseThrow(() -> new IllegalArgumentException("Trainee with username: " + userName + " not found."));
+    @Transactional
+    public Optional<TraineeProfile> update(String firstName, String lastName, String username, String password, String address, LocalDate dateOfBirth, boolean isActive) {
+        if (!login(username, password)) {
+            return Optional.empty();
+        }
+        log.info("Updating Trainee's data with username: {}", username);
+        Trainee trainee = findTraineeByUsername(username);
         trainee.getUser().setFirstName(firstName);
         trainee.getUser().setLastName(lastName);
+        trainee.getUser().setActive(isActive);
         trainee.setAddress(address);
         trainee.setDateOfBirth(dateOfBirth);
-        trainee.getUser().setActive(isActive);
-        log.info("Trainee's data with username: {} has been updated", userName);
+        log.info("Trainee's data with username: {} has been updated", username);
+        initializeLazyCollections(trainee);
+        return Optional.of(TraineeMapper.toProfile(trainee));
     }
 
-    public void delete(String userName) {
-        log.info("Deleting Trainee with username: {}", userName);
-        Trainee trainee = selectByUsername(userName).orElseThrow(() -> new IllegalArgumentException("Trainee with username: " + userName + " not found."));
-        log.info("Trainee with username: {} successfully deleted", userName);
-        dao.delete(trainee);
+    @Transactional
+    public void delete(String username, String password) {
+        log.info("Deleting Trainee with username: {}", username);
+        Trainee trainee = findTraineeByUsername(username);
+        traineeRepository.delete(trainee);
+        log.info("Trainee with username: {} successfully deleted", username);
     }
 
-    public List<Trainee> getAll() {
-        log.info("Getting all Trainees");
-        return dao.findAll();
+    @Transactional
+    public boolean activate(String username, String password) {
+        return updateActiveStatus(username, password, true);
     }
 
-    private String getUsername(String firstName, String lastName) {
-        String userName = firstName + "." + lastName;
-        long alingments = dao.findAll().stream()
-                .filter(un -> un.getUser().getFirstName().equals(firstName) && un.getUser().getLastName().equals(lastName))
-                .count();
-        if (alingments > 0) {
-            userName += alingments;
+    @Transactional
+    public boolean deactivate(String username, String password) {
+        return updateActiveStatus(username, password, false);
+    }
+
+    @Transactional
+    public boolean login(String username, String password) {
+        Trainee trainee = findTraineeByUsername(username);
+        return trainee.getUser().getPassword().equals(password);
+    }
+
+    private void validateNames(String firstName, String lastName) {
+        if (firstName.isBlank() || lastName.isBlank()) {
+            log.error("Trainee creation failed: blank firstname or lastname");
+            throw new IllegalArgumentException("Trainee without firstname and lastname cannot be created!");
         }
-        return userName;
     }
 
-    private String madePassword() {
+    private Trainee findTraineeByUsername(String username) {
+        return traineeRepository.findByUserUsername(username).orElseThrow(() -> new IllegalArgumentException("Trainee with username: " + username + " not found."));
+    }
+
+    private void initializeLazyCollections(Trainee trainee) {
+        trainee.getTrainers().size();
+        trainee.getTrainings().size();
+    }
+
+    private boolean updateActiveStatus(String username, String password, boolean isActive) {
+        if (login(username, password)) {
+            Trainee trainee = findTraineeByUsername(username);
+            trainee.getUser().setActive(isActive);
+            return true;
+        }
+        return false;
+    }
+
+    private String generateUserName(String firstName, String lastName) {
+        String baseUserName = firstName + "." + lastName;
+        long count = traineeRepository.findAll().stream()
+                .filter(tr -> tr.getUser().getFirstName().equals(firstName) && tr.getUser().getLastName().equals(lastName))
+                .count();
+        return count > 0 ? baseUserName + count : baseUserName;
+    }
+
+    private String generatePassword() {
         Random random = new Random();
-        return Stream.generate(() -> (char) random.nextInt(33, 122))
+        return random.ints(33, 122)
                 .filter(Character::isLetter)
                 .limit(10)
-                .map(String::valueOf)
+                .mapToObj(c -> String.valueOf((char) c))
                 .collect(Collectors.joining());
     }
 }

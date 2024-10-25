@@ -1,52 +1,53 @@
 package org.example;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+import jakarta.persistence.PersistenceContext;
+import lombok.extern.slf4j.Slf4j;
 import org.example.config.ProjectConfig;
+import org.example.model.Trainer;
 import org.example.model.TrainingType;
-import org.example.services.Facade;
-import org.example.services.TraineeService;
+import org.example.model.enums.TrainingTypeName;
 import org.example.services.TrainerService;
-import org.example.services.TrainingService;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 
-public class App
-{
-    public static void main( String[] args ) {
-        var context= new AnnotationConfigApplicationContext(ProjectConfig.class);
-//        System.out.println(Arrays.toString(context.getBeanDefinitionNames()));
-        TrainerService service=context.getBean(TrainerService.class);
-//        System.out.println(service.getAll());
-        System.out.println("______________");
-        TraineeService service1=context.getBean(TraineeService.class);
+@Slf4j
+public class App {
+    @PersistenceContext
+    EntityManager entityManager;
+    public static void main(String[] args) {
+        EntityManagerFactory entityManagerFactory= Persistence.createEntityManagerFactory("default");
+        EntityManager entityManager=entityManagerFactory.createEntityManager();
 
-        TrainingService service2=context.getBean(TrainingService.class);
-        System.out.println(service2.getAll());
-//        Facade facade=context.getBean(Facade.class);
-//        System.out.println(facade.getTraineeTrainingList("tomas.kuk",null,null));
 
-//        service.create("Tim","Build", TrainingType.YOGA);
-//        service.update("Tima","Builda","Tim.Build", TrainingType.STRETCHING,false);
-//        service1.create("Aby","Barrack","Rome", LocalDate.parse("1995-01-12"));
-//        System.out.println(service.selectById(6));
-//        System.out.println("______________");
-//        service1.update("Abyda","Barracka","Aby.Barrack","Seville", LocalDate.parse("1995-01-12"),false);
-//        System.out.println(service1.selectById(5));
-//        System.out.println("*********************");
-//        service1.update("Olga","Cruze","Olga.Kurilenko","Viena", LocalDate.of(1989,10,15),false);
+        var context = new AnnotationConfigApplicationContext(ProjectConfig.class);
+        TrainerService trainerService=context.getBean(TrainerService.class);
+//        trainerService.create("Helen","Doron", TrainingTypeName.ZUMBA);
+//        trainerService.create("Monica","Dobs",TrainingTypeName.FITNESS);
 //
-////        System.out.println("++++++++++++++++++++");
-//        System.out.println(service.getAll());
-////        System.out.println("______________");
-////
-//        System.out.println(service.selectByUsername("Bob.Getty"));
-//        System.out.println(service1.selectByUsername("tomas.kuk"));
-//
-//        service2.create(1l,2l,"Outside workout",TrainingType.FITNESS, LocalDateTime.now(), Duration.parse("PT1H30M"));
-//        System.out.println(service2.getAll());
-//        System.out.println("______________");
+//        trainerService.create("Wallace", "Tim",TrainingTypeName.YOGA);
+//        trainerService.create("Tom", "Robins",TrainingTypeName.FITNESS);
+//        trainerService.create("Bob", "Getty",TrainingTypeName.STRETCHING);
+//        trainerService.create("Mary", "Popins",TrainingTypeName.RESISTANCE);
+//        trainerService.create("Jack", "Daniels",TrainingTypeName.YOGA);
+//        trainerService.create("Jack", "Daniels",TrainingTypeName.RESISTANCE);
+        System.out.println(trainerService.selectById(1L));
+//        System.out.println(trainerService.deActivate("Helen.Doron","1"));
+        System.out.println(trainerService.activate("Helen.Doron","1"));
+
+
+
+
+        entityManager.close();
+        entityManagerFactory.close();
+
+//        Facade facade = context.getBean(Facade.class);
+//        LocalDateTime dataFrom = LocalDateTime.of(2024, 10, 1, 1, 0);
+//        LocalDateTime dataTo = LocalDateTime.of(2024, 10, 10, 1, 0);
+//        log.info(facade.getTrainingList("Kim.Johnson", dataFrom, dataTo,true));
+//        log.info(facade.getTrainingList("Tim.Wallace", dataFrom, dataTo,false));
     }
 }

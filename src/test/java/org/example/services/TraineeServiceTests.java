@@ -52,20 +52,20 @@ public class TraineeServiceTests {
         assertNotNull(firstTrainee);
         assertEquals(firstName + "." + lastName, firstTrainee.getUsername());
         assertEquals(10, firstTrainee.getPassword().length());
-        assertEquals(firstTrainee, traineeMap.get(firstTrainee.getUserId()));
+        assertEquals(firstTrainee, traineeMap.get(firstTrainee.getTraineeId()));
 
         Trainee secondTrainee = traineeService.create(firstName, lastName, "New York", null);
         assertNotNull(secondTrainee);
-        assertEquals("John.Doe1", traineeMap.get(secondTrainee.getUserId()).getUsername());
-        assertEquals("New York", traineeMap.get(secondTrainee.getUserId()).getAddress());
+        assertEquals("John.Doe1", traineeMap.get(secondTrainee.getTraineeId()).getUsername());
+        assertEquals("New York", traineeMap.get(secondTrainee.getTraineeId()).getAddress());
 
         Trainee thirdTrainee = traineeService.create(firstName, lastName, null, LocalDate.of(2000, 1, 1));
         assertNotNull(secondTrainee);
-        assertEquals("John.Doe2", traineeMap.get(thirdTrainee.getUserId()).getUsername());
-        assertEquals(LocalDate.of(2000, 1, 1), traineeMap.get(thirdTrainee.getUserId()).getDateOfBirth());
+        assertEquals("John.Doe2", traineeMap.get(thirdTrainee.getTraineeId()).getUsername());
+        assertEquals(LocalDate.of(2000, 1, 1), traineeMap.get(thirdTrainee.getTraineeId()).getDateOfBirth());
 
-        assertThrows(IllegalArgumentException.class,()->traineeService.create(null,"Von","Chicago",null));
-        assertThrows(IllegalArgumentException.class,()->traineeService.create("Vince",null,"Chicago",null));
+        assertThrows(NullPointerException.class,()->traineeService.create(null,"Von","Chicago",null));
+        assertThrows(NullPointerException.class,()->traineeService.create("Vince",null,"Chicago",null));
 
         verify(dao, times(3)).save(any(Trainee.class), anyLong());
     }
@@ -124,7 +124,7 @@ public class TraineeServiceTests {
         // Assert
         assertTrue(result.isPresent());
         assertEquals(trainee1, result.get());
-        verify(dao, times(1)).getAll();
+        verify(dao, times(2)).getAll();
     }
 
     @Test
@@ -140,7 +140,7 @@ public class TraineeServiceTests {
 
         // Assert
         assertFalse(result.isPresent());
-        verify(dao, times(1)).getAll();
+        verify(dao, times(2)).getAll();
     }
     @Test
     @DisplayName("Update Trainee Test - success")
@@ -164,7 +164,7 @@ public class TraineeServiceTests {
         assertEquals(lastName, trainee.getLastName());
         assertEquals(address, trainee.getAddress());
         assertFalse(trainee.isActive());
-        verify(dao, times(1)).getAll();
+        verify(dao, times(2)).getAll();
     }
 
     @Test
@@ -180,7 +180,7 @@ public class TraineeServiceTests {
                 traineeService.update("John", "Doe", username, "456 Avenue", LocalDate.of(1990, 1, 1), true)
         );
         assertEquals("Trainee with username: " + username + " not found.", exception.getMessage());
-        verify(dao, times(1)).getAll();
+        verify(dao, times(2)).getAll();
     }
 
 
@@ -191,7 +191,7 @@ public class TraineeServiceTests {
         // Arrange
         String username = "john.doe";
         Trainee trainee = new Trainee();
-        trainee.setUserId(1L);
+        trainee.setTraineeId(1L);
         trainee.setUsername(username);
         when(dao.getAll()).thenReturn(Map.of(1L, trainee));
 
@@ -199,7 +199,7 @@ public class TraineeServiceTests {
         traineeService.delete(username);
 
         // Assert
-        verify(dao, times(1)).delete(trainee.getUserId());
+        verify(dao, times(1)).delete(trainee.getTraineeId());
     }
 
     @Test
@@ -215,7 +215,7 @@ public class TraineeServiceTests {
                 traineeService.delete(username)
         );
         assertEquals("Trainee with username: " + username + " not found.", exception.getMessage());
-        verify(dao, times(1)).getAll();
+        verify(dao, times(2)).getAll();
     }
     @Test
     @DisplayName("GetAll method TraineeService Test")
@@ -232,6 +232,6 @@ public class TraineeServiceTests {
         // Assert
         assertEquals(2, result.size());
         assertTrue(result.containsAll(Arrays.asList(trainee1, trainee2)));
-        verify(dao, times(1)).getAll();
+        verify(dao, times(2)).getAll();
     }
 }

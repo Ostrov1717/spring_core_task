@@ -38,36 +38,38 @@ public class TraineeService {
     }
 
     @Transactional
-    public Optional<TraineeProfile> findById(Long id) {
-        log.info("Searching Trainer by Id: {}", id);
-        Trainee trainee = traineeRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Trainee not found"));
-        initializeLazyCollections(trainee);
+    public Optional<TraineeProfile> findByUsername(String username, String password) {
+        authenticate(username, password);
+        log.info("Searching Trainee by username: {}", username);
+        Trainee trainee = findTraineeByUsername(username);
         return Optional.of(TraineeMapper.toProfile(trainee));
     }
 
     @Transactional
-    public Optional<TraineeProfile> findByUsername(String username) {
-        log.info("Searching Trainee by username: {}", username);
-        Trainee trainee = findTraineeByUsername(username);
-        initializeLazyCollections(trainee);
-        return Optional.of(TraineeMapper.toProfile(trainee));
+    private void authenticate(String username, String password) {
+        if (traineeRepository.findByUsernameAndPassword(username, password).isEmpty()) {
+            throw new IllegalArgumentException("Invalid username or password");
+        }
+    }
+
+    @Transactional
+    private Trainee findTraineeByUsername(String username) {
+        return traineeRepository.findByUserUsername(username).orElseThrow(() -> new IllegalArgumentException("Trainee with username: " + username + " not found."));
     }
 
     @Transactional
     public boolean changePassword(String username, String oldPassword, String newPassword) {
-        if (login(username, oldPassword)) {
-            Trainee trainee = findTraineeByUsername(username);
-            trainee.getUser().setPassword(newPassword);
-            return true;
-        }
-        return false;
+        authenticate(username, oldPassword);
+        log.info("Changing password of Trainee with username: {}", username);
+        Trainee trainee = findTraineeByUsername(username);
+        trainee.getUser().setPassword(newPassword);
+        log.info("Password successfully changed");
+        return true;
     }
 
     @Transactional
     public Optional<TraineeProfile> update(String firstName, String lastName, String username, String password, String address, LocalDate dateOfBirth, boolean isActive) {
-        if (!login(username, password)) {
-            return Optional.empty();
-        }
+        authenticate(username, password);
         log.info("Updating Trainee's data with username: {}", username);
         Trainee trainee = findTraineeByUsername(username);
         trainee.getUser().setFirstName(firstName);
@@ -76,32 +78,38 @@ public class TraineeService {
         trainee.setAddress(address);
         trainee.setDateOfBirth(dateOfBirth);
         log.info("Trainee's data with username: {} has been updated", username);
-        initializeLazyCollections(trainee);
         return Optional.of(TraineeMapper.toProfile(trainee));
     }
 
     @Transactional
     public void delete(String username, String password) {
+        authenticate(username, password);
         log.info("Deleting Trainee with username: {}", username);
         Trainee trainee = findTraineeByUsername(username);
         traineeRepository.delete(trainee);
         log.info("Trainee with username: {} successfully deleted", username);
     }
 
-    @Transactional
     public boolean activate(String username, String password) {
-        return updateActiveStatus(username, password, true);
+        authenticate(username, password);
+        log.info("Activating Trainee with username: {}", username);
+        boolean activated=updateActiveStatus(username, true);
+        log.info("Trainee with username: {} activated", username);
+        return activated;
     }
 
-    @Transactional
     public boolean deactivate(String username, String password) {
-        return updateActiveStatus(username, password, false);
+        authenticate(username, password);
+        log.info("Deactivating Trainee with username: {}", username);
+        boolean deactivated=updateActiveStatus(username, false);
+        log.info("Trainee with username: {} deactivated", username);
+        return deactivated;
     }
-
     @Transactional
-    public boolean login(String username, String password) {
+    private boolean updateActiveStatus(String username, boolean isActive) {
         Trainee trainee = findTraineeByUsername(username);
-        return trainee.getUser().getPassword().equals(password);
+        trainee.getUser().setActive(isActive);
+        return true;
     }
 
     private void validateNames(String firstName, String lastName) {
@@ -109,24 +117,6 @@ public class TraineeService {
             log.error("Trainee creation failed: blank firstname or lastname");
             throw new IllegalArgumentException("Trainee without firstname and lastname cannot be created!");
         }
-    }
-
-    private Trainee findTraineeByUsername(String username) {
-        return traineeRepository.findByUserUsername(username).orElseThrow(() -> new IllegalArgumentException("Trainee with username: " + username + " not found."));
-    }
-
-    private void initializeLazyCollections(Trainee trainee) {
-        trainee.getTrainers().size();
-        trainee.getTrainings().size();
-    }
-
-    private boolean updateActiveStatus(String username, String password, boolean isActive) {
-        if (login(username, password)) {
-            Trainee trainee = findTraineeByUsername(username);
-            trainee.getUser().setActive(isActive);
-            return true;
-        }
-        return false;
     }
 
     private String generateUserName(String firstName, String lastName) {

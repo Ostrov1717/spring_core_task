@@ -13,11 +13,13 @@ public class TrainerProfile {
 
     private String lastName;
 
+    private String username;
+
     private boolean active;
 
     private TrainingType specialization;
 
-    private Set<Trainee> trainees;
-
-    private Set<Training> trainings;
+//    private Set<Trainee> trainees;
+//
+//    private Set<Training> trainings;
 }

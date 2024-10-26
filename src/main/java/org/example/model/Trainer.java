@@ -19,7 +19,7 @@ public class Trainer implements Serializable {
     @JoinColumn(name = "specialization_id", referencedColumnName = "id", nullable = false)
     private TrainingType specialization;
 
-    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id",unique = true)
     private User user;
 

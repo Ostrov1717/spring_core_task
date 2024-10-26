@@ -9,10 +9,11 @@ public class TrainerMapper {
         TrainerProfile trainerProfile=new TrainerProfile();
         trainerProfile.setFirstName(trainer.getUser().getFirstName());
         trainerProfile.setLastName(trainer.getUser().getLastName());
+        trainerProfile.setUsername(trainer.getUser().getUsername());
         trainerProfile.setActive(trainer.getUser().isActive());
         trainerProfile.setSpecialization(trainer.getSpecialization());
-        trainerProfile.setTrainees(trainer.getTrainees());
-        trainerProfile.setTrainings(trainer.getTrainings());
+//        trainerProfile.setTrainees(trainer.getTrainees());
+//        trainerProfile.setTrainings(trainer.getTrainings());
         return trainerProfile;
     }
 //    Trainer toTrainer(TrainerProfile trainerProfile);

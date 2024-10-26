@@ -42,36 +42,40 @@ public class TrainerService {
     }
 
     @Transactional
-    public Optional<TrainerProfile> findById(Long id) {
-        log.info("Searching Trainer by Id: {}", id);
-        Trainer trainer = trainerRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Trainer not found"));
-        initializeLazyCollections(trainer);
+    public Optional<TrainerProfile> findByUsername(String username, String password) {
+        authenticate(username, password);
+        log.info("Searching Trainer by username: {}", username);
+        Trainer trainer = findTrainerByUsername(username);
         return Optional.of(TrainerMapper.toProfile(trainer));
     }
 
     @Transactional
-    public Optional<TrainerProfile> findByUsername(String username) {
-        log.info("Searching Trainer by username: {}", username);
-        Trainer trainer = findTrainerByUsername(username);
-        initializeLazyCollections(trainer);
-        return Optional.of(TrainerMapper.toProfile(trainer));
+    private void authenticate(String username, String password) {
+        if (trainerRepository.findByUsernameAndPassword(username, password).isEmpty()) {
+            throw new IllegalArgumentException("Invalid username or password");
+        }
+    }
+
+    @Transactional
+    private Trainer findTrainerByUsername(String username) {
+        return trainerRepository.findByUserUsername(username).orElseThrow(() -> new IllegalArgumentException("Trainer with username: " + username + " not found."));
     }
 
     @Transactional
     public boolean changePassword(String username, String oldPassword, String newPassword) {
-        if (login(username, oldPassword)) {
-            Trainer trainer = findTrainerByUsername(username);
-            trainer.getUser().setPassword(newPassword);
-            return true;
-        }
-        return false;
+        authenticate(username, oldPassword);
+        log.info("Changing password of Trainer with username: {}", username);
+        Trainer trainer = findTrainerByUsername(username);
+        trainer.getUser().setPassword(newPassword);
+        log.info("Password successfully changed");
+        return true;
+
     }
 
     @Transactional
     public Optional<TrainerProfile> update(String firstName, String lastName, String username, String password, TrainingTypeName trainingTypeName, boolean isActive) {
-        if (!login(username, password)) {
-            return Optional.empty();
-        }
+        authenticate(username, password);
+        log.info("Updating Trainer's data with username: {}", username);
         Trainer trainer = findTrainerByUsername(username);
         TrainingType specialization = findTrainingType(trainingTypeName);
         trainer.getUser().setFirstName(firstName);
@@ -79,24 +83,30 @@ public class TrainerService {
         trainer.setSpecialization(specialization);
         trainer.getUser().setActive(isActive);
         log.info("Trainer's data with username: {} has been updated", username);
-        initializeLazyCollections(trainer);
         return Optional.of(TrainerMapper.toProfile(trainer));
     }
 
-    @Transactional
     public boolean activate(String username, String password) {
-        return updateActiveStatus(username, password, true);
+        authenticate(username, password);
+        log.info("Activating Trainer with username: {}", username);
+        boolean activated = updateActiveStatus(username, true);
+        log.info("Trainer with username: {} activated", username);
+        return activated;
     }
 
     @Transactional
-    public boolean deactivate(String username, String password) {
-        return updateActiveStatus(username, password, false);
-    }
-
-    @Transactional
-    public boolean login(String username, String password) {
+    private boolean updateActiveStatus(String username, boolean isActive) {
         Trainer trainer = findTrainerByUsername(username);
-        return trainer.getUser().getPassword().equals(password);
+        trainer.getUser().setActive(isActive);
+        return true;
+    }
+
+    public boolean deactivate(String username, String password) {
+        authenticate(username, password);
+        log.info("Deactivating Trainer with username: {}", username);
+        boolean deactivated = updateActiveStatus(username, false);
+        log.info("Trainer with username: {} deactivated", username);
+        return true;
     }
 
     private void validateNames(String firstName, String lastName) {
@@ -106,27 +116,9 @@ public class TrainerService {
         }
     }
 
-    private Trainer findTrainerByUsername(String username) {
-        return trainerRepository.findByUserUsername(username).orElseThrow(() -> new IllegalArgumentException("Trainer with username: " + username + " not found."));
-    }
-
     private TrainingType findTrainingType(TrainingTypeName trainingTypeName) {
         return trainingTypeRepository.findByTrainingType(trainingTypeName.name())
                 .orElseThrow(() -> new RuntimeException("Specialization not found"));
-    }
-
-    private void initializeLazyCollections(Trainer trainer) {
-        trainer.getTrainees().size();
-        trainer.getTrainings().size();
-    }
-
-    private boolean updateActiveStatus(String username, String password, boolean isActive) {
-        if (login(username, password)) {
-            Trainer trainer = findTrainerByUsername(username);
-            trainer.getUser().setActive(isActive);
-            return true;
-        }
-        return false;
     }
 
     private String generateUserName(String firstName, String lastName) {

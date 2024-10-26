@@ -11,11 +11,12 @@ public class TraineeMapper {
         TraineeProfile traineeProfile=new TraineeProfile();
         traineeProfile.setFirstName(trainee.getUser().getFirstName());
         traineeProfile.setLastName(trainee.getUser().getLastName());
+        traineeProfile.setUsername(trainee.getUser().getUsername());
         traineeProfile.setActive(trainee.getUser().isActive());
         traineeProfile.setAddress(trainee.getAddress());
         traineeProfile.setDateOfBirth(trainee.getDateOfBirth());
-        traineeProfile.setTrainers(trainee.getTrainers());
-        traineeProfile.setTrainings(trainee.getTrainings());
+//        traineeProfile.setTrainers(trainee.getTrainers());
+//        traineeProfile.setTrainings(trainee.getTrainings());
         return traineeProfile;
     };
 

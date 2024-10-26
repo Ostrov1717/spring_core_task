@@ -35,13 +35,8 @@ public class TrainingService {
             throw new IllegalArgumentException("Training name cannot be null/blank");
         }
         Training training = new Training(trainee, trainer, trainingName, type, trainingDate, duration);
-        log.info("Training has been created: id={}, name={}", null, trainingName);
+        log.info("Training has been created: name={}, date={}, type={}", trainingName,trainingDate,type);
         return Optional.of(trainingRepository.save(training));
-    }
-
-    public Optional<Training> findByTrainingId(Long trainingId) {
-        log.info("Search training by Id: {}", trainingId);
-        return trainingRepository.findById(trainingId);
     }
 
     public List<Training> findByTrainer(String trainerUsername, LocalDateTime fromDate, LocalDateTime toDate, String traineeName) {

@@ -14,7 +14,7 @@ public class TrainingTypeInitializer {
         this.trainingTypeRepository = trainingTypeRepository;
     }
 
-    @PostConstruct
+//    @PostConstruct
     public void init() {
         for (TrainingTypeName type : TrainingTypeName.values()) {
             TrainingType entity = new TrainingType();

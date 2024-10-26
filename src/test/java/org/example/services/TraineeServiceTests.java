@@ -1,7 +1,9 @@
 package org.example.services;
 
-import org.example.dao.GenericDAO;
+import org.example.dao.TraineeRepository;
 import org.example.model.Trainee;
+import org.example.model.User;
+import org.example.profiles.TraineeProfile;
 import org.junit.jupiter.api.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -15,7 +17,7 @@ import static org.mockito.Mockito.*;
 public class TraineeServiceTests {
 
     @Mock
-    private GenericDAO<Trainee> dao;
+    private TraineeRepository traineeRepository;
 
     @InjectMocks
     private TraineeService traineeService;
@@ -37,37 +39,18 @@ public class TraineeServiceTests {
         String address = "California";
         LocalDate dob = LocalDate.of(1990, 1, 1);
 
-        // Мокируем метод save, чтобы он сохранял Trainee в тестовую карту
-        when(dao.save(any(Trainee.class), anyLong())).thenAnswer(invocation -> {
-            Trainee trainee = invocation.getArgument(0);
-            Long id = invocation.getArgument(1);
-            traineeMap.put(id, trainee);
-            return trainee; // Сохраняем объект в тестовой карте
-        });
-        when(dao.getAll()).thenReturn(traineeMap);
+        Trainee trainee = new Trainee(new User(firstName,lastName,"John.Doe","1234",false),address,dob);
+        when(traineeRepository.save(any(Trainee.class))).thenReturn(trainee);
+
         // Act
-        Trainee firstTrainee = traineeService.create(firstName, lastName, address, dob);
+        Optional<TraineeProfile> result = traineeService.create(firstName, lastName, address, dob);
 
         // Assert
-        assertNotNull(firstTrainee);
-        assertEquals(firstName + "." + lastName, firstTrainee.getUsername());
-        assertEquals(10, firstTrainee.getPassword().length());
-        assertEquals(firstTrainee, traineeMap.get(firstTrainee.getTraineeId()));
-
-        Trainee secondTrainee = traineeService.create(firstName, lastName, "New York", null);
-        assertNotNull(secondTrainee);
-        assertEquals("John.Doe1", traineeMap.get(secondTrainee.getTraineeId()).getUsername());
-        assertEquals("New York", traineeMap.get(secondTrainee.getTraineeId()).getAddress());
-
-        Trainee thirdTrainee = traineeService.create(firstName, lastName, null, LocalDate.of(2000, 1, 1));
-        assertNotNull(secondTrainee);
-        assertEquals("John.Doe2", traineeMap.get(thirdTrainee.getTraineeId()).getUsername());
-        assertEquals(LocalDate.of(2000, 1, 1), traineeMap.get(thirdTrainee.getTraineeId()).getDateOfBirth());
-
-        assertThrows(NullPointerException.class,()->traineeService.create(null,"Von","Chicago",null));
-        assertThrows(NullPointerException.class,()->traineeService.create("Vince",null,"Chicago",null));
-
-        verify(dao, times(3)).save(any(Trainee.class), anyLong());
+        assertTrue(result.isPresent());
+        assertEquals("John.Doe", result.get().getUsername());
+        assertEquals("California", result.get().getAddress());
+        assertEquals(dob, result.get().getDateOfBirth());
+        verify(traineeRepository, times(1)).save(any(Trainee.class), anyLong());
     }
 
     @Test
@@ -78,7 +61,7 @@ public class TraineeServiceTests {
         // Arrange
         long id = 1L;
         Trainee trainee = new Trainee(1,"John","Doe","John.Doe","udfdhjhgfg",true,"California",LocalDate.of(1990, 1, 1));
-        when(dao.findById(id)).thenReturn(trainee);
+        when(traineeRepository.findById(id)).thenReturn(trainee);
 
         // Act
         Optional<Trainee> result = traineeService.selectById(id);
@@ -86,7 +69,7 @@ public class TraineeServiceTests {
         // Assert
         assertTrue(result.isPresent());
         assertEquals(trainee, result.get());
-        verify(dao, times(1)).findById(id);
+        verify(traineeRepository, times(1)).findById(id);
     }
 
     @Test
@@ -95,14 +78,14 @@ public class TraineeServiceTests {
     void selectById_notFound() {
         // Arrange
         long id = 1L;
-        when(dao.findById(id)).thenReturn(null);
+        when(traineeRepository.findById(id)).thenReturn(null);
 
         // Act
         Optional<Trainee> result = traineeService.selectById(id);
 
         // Assert
         assertFalse(result.isPresent());
-        verify(dao, times(1)).findById(id);
+        verify(traineeRepository, times(1)).findById(id);
     }
     @Test
     @DisplayName("Select Trainee Test by username - success")
@@ -116,7 +99,7 @@ public class TraineeServiceTests {
         Trainee trainee2 = new Trainee();
         trainee2.setUsername("another.username");
         traineeMap.put(2L,trainee2);
-        when(dao.getAll()).thenReturn(traineeMap);
+        when(traineeRepository.getAll()).thenReturn(traineeMap);
 
         // Act
         Optional<Trainee> result = traineeService.selectByUsername(username);
@@ -124,7 +107,7 @@ public class TraineeServiceTests {
         // Assert
         assertTrue(result.isPresent());
         assertEquals(trainee1, result.get());
-        verify(dao, times(2)).getAll();
+        verify(traineeRepository, times(2)).getAll();
     }
 
     @Test
@@ -133,14 +116,14 @@ public class TraineeServiceTests {
     void selectByUsername_notFound() {
         // Arrange
         String username = "john.doe";
-        when(dao.getAll()).thenReturn(new HashMap<>());
+        when(traineeRepository.getAll()).thenReturn(new HashMap<>());
 
         // Act
         Optional<Trainee> result = traineeService.selectByUsername(username);
 
         // Assert
         assertFalse(result.isPresent());
-        verify(dao, times(2)).getAll();
+        verify(traineeRepository, times(2)).getAll();
     }
     @Test
     @DisplayName("Update Trainee Test - success")
@@ -154,7 +137,7 @@ public class TraineeServiceTests {
         LocalDate dob = LocalDate.of(1990, 1, 1);
         Trainee trainee = new Trainee();
         trainee.setUsername(username);
-        when(dao.getAll()).thenReturn(Map.of(1L, trainee));
+        when(traineeRepository.getAll()).thenReturn(Map.of(1L, trainee));
 
         // Act
         traineeService.update(firstName, lastName, username, address, dob, false);
@@ -164,7 +147,7 @@ public class TraineeServiceTests {
         assertEquals(lastName, trainee.getLastName());
         assertEquals(address, trainee.getAddress());
         assertFalse(trainee.isActive());
-        verify(dao, times(2)).getAll();
+        verify(traineeRepository, times(2)).getAll();
     }
 
     @Test
@@ -173,14 +156,14 @@ public class TraineeServiceTests {
     void updateTraineeTest_notFound() {
         // Arrange
         String username = "john.doe";
-        when(dao.getAll()).thenReturn(new HashMap<>());
+        when(traineeRepository.getAll()).thenReturn(new HashMap<>());
 
         // Act & Assert
         Exception exception = assertThrows(IllegalArgumentException.class, () ->
                 traineeService.update("John", "Doe", username, "456 Avenue", LocalDate.of(1990, 1, 1), true)
         );
         assertEquals("Trainee with username: " + username + " not found.", exception.getMessage());
-        verify(dao, times(2)).getAll();
+        verify(traineeRepository, times(2)).getAll();
     }
 
 
@@ -193,13 +176,13 @@ public class TraineeServiceTests {
         Trainee trainee = new Trainee();
         trainee.setTraineeId(1L);
         trainee.setUsername(username);
-        when(dao.getAll()).thenReturn(Map.of(1L, trainee));
+        when(traineeRepository.getAll()).thenReturn(Map.of(1L, trainee));
 
         // Act
         traineeService.delete(username);
 
         // Assert
-        verify(dao, times(1)).delete(trainee.getTraineeId());
+        verify(traineeRepository, times(1)).delete(trainee.getTraineeId());
     }
 
     @Test
@@ -208,14 +191,14 @@ public class TraineeServiceTests {
     void deleteTrainee_notFound() {
         // Arrange
         String username = "john.doe";
-        when(dao.getAll()).thenReturn(new HashMap<>());
+        when(traineeRepository.getAll()).thenReturn(new HashMap<>());
 
         // Act & Assert
         Exception exception = assertThrows(IllegalArgumentException.class, () ->
                 traineeService.delete(username)
         );
         assertEquals("Trainee with username: " + username + " not found.", exception.getMessage());
-        verify(dao, times(2)).getAll();
+        verify(traineeRepository, times(2)).getAll();
     }
     @Test
     @DisplayName("GetAll method TraineeService Test")
@@ -224,7 +207,7 @@ public class TraineeServiceTests {
         // Arrange
         Trainee trainee1 = new Trainee();
         Trainee trainee2 = new Trainee();
-        when(dao.getAll()).thenReturn(Map.of(1L, trainee1, 2L, trainee2));
+        when(traineeRepository.getAll()).thenReturn(Map.of(1L, trainee1, 2L, trainee2));
 
         // Act
         List<Trainee> result = traineeService.getAll();
@@ -232,6 +215,6 @@ public class TraineeServiceTests {
         // Assert
         assertEquals(2, result.size());
         assertTrue(result.containsAll(Arrays.asList(trainee1, trainee2)));
-        verify(dao, times(2)).getAll();
+        verify(traineeRepository, times(2)).getAll();
     }
 }

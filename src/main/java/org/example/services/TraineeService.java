@@ -4,7 +4,9 @@ import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.example.dao.TraineeRepository;
+import org.example.dao.TrainerRepository;
 import org.example.model.Trainee;
+import org.example.model.Trainer;
 import org.example.model.User;
 import org.example.profiles.TraineeMapper;
 import org.example.profiles.TraineeProfile;
@@ -14,14 +16,14 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
 @Service
 @Slf4j
 public class TraineeService {
-    private TraineeRepository traineeRepository;
-
+    private final TraineeRepository traineeRepository;
     @Autowired
     public TraineeService(TraineeRepository traineeRepository) {
         this.traineeRepository = traineeRepository;
@@ -134,5 +136,17 @@ public class TraineeService {
                 .limit(10)
                 .mapToObj(c -> String.valueOf((char) c))
                 .collect(Collectors.joining());
+    }
+    @Transactional
+    public Optional<TraineeProfile> findById(Long id){
+        Trainee trainee=traineeRepository.findById(id).orElseThrow(() -> new RuntimeException("Trainee not found"));
+        return Optional.of(TraineeMapper.toProfile(trainee));
+    }
+    @Transactional
+    public void updateTraineeTrainers(String username, Set<Trainer> newTrainers) {
+        Trainee trainee = traineeRepository.findByUserUsername(username)
+                .orElseThrow(() -> new RuntimeException("Trainee not found"));
+        trainee.setTrainers(newTrainers);
+        traineeRepository.save(trainee);
     }
 }

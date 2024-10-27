@@ -2,6 +2,7 @@ package org.example.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.time.Duration;
@@ -14,21 +15,21 @@ public class Training implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long trainingId;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @JoinColumn(name = "trainee_id", referencedColumnName = "traineeid")
     private Trainee trainee;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST,fetch = FetchType.EAGER)
     @JoinColumn(name = "trainer_id", referencedColumnName = "trainerid")
     private Trainer trainer;
 
     private String trainingName;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "trainingType_id", referencedColumnName = "id")
     private TrainingType trainingType;
 
     private LocalDateTime trainingDate;
-
+    @Convert(converter = DurationConverter.class)
     private Duration trainingDuration;
 
     public Training() {
@@ -41,21 +42,5 @@ public class Training implements Serializable {
         this.trainingType = trainingType;
         this.trainingDate = trainingDate;
         this.trainingDuration = trainingDuration;
-    }
-
-    @Override
-    public String toString() {
-        String duration = String.format("%02d:%02d:%02d", trainingDuration.toHours(), trainingDuration.toMinutesPart(), trainingDuration.toSecondsPart());
-        DateTimeFormatter CUSTOM_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        final StringBuffer sb = new StringBuffer("Training{");
-        sb.append("id=").append(trainingId);
-//        sb.append(", traineeId=").append(traineeId);
-//        sb.append(", trainerId=").append(trainerId);
-        sb.append(", name='").append(trainingName).append('\'');
-        sb.append(", type=").append(trainingType);
-        sb.append(", date=").append(trainingDate.format(CUSTOM_FORMATTER));
-        sb.append(", duration=").append(duration);
-        sb.append('}');
-        return sb.toString();
     }
 }

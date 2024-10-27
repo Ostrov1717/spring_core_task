@@ -1,8 +1,12 @@
 package org.example.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.example.profiles.TraineeMapper;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -10,6 +14,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Data
+@EqualsAndHashCode(exclude = {"trainers", "trainings"})
 @Entity
 public class Trainee implements Serializable {
     @Id
@@ -23,14 +28,13 @@ public class Trainee implements Serializable {
     @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true)
     private User user;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "trainee2trainer",
             joinColumns = @JoinColumn(name = "trainee_id"),
             inverseJoinColumns = @JoinColumn(name = "trainer_id"))
     private Set<Trainer> trainers = new HashSet<>();
 
-    @OneToMany(mappedBy = "trainee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @org.hibernate.annotations.OrderBy(clause = "trainingDate DESC")
+    @OneToMany(mappedBy = "trainee", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private Set<Training> trainings = new HashSet<>();
 
     public Trainee() {
@@ -40,5 +44,11 @@ public class Trainee implements Serializable {
         this.address = address;
         this.dateOfBirth = dateOfBirth;
         this.user = user;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer(TraineeMapper.toProfile(this).toString());
+        return sb.toString();
     }
 }

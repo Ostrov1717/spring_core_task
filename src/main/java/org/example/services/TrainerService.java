@@ -5,15 +5,18 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.example.dao.TrainerRepository;
 import org.example.dao.TrainingTypeRepository;
+import org.example.model.Trainee;
 import org.example.model.Trainer;
 import org.example.model.TrainingType;
 import org.example.model.User;
 import org.example.model.enums.TrainingTypeName;
 import org.example.profiles.TrainerMapper;
 import org.example.profiles.TrainerProfile;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -137,4 +140,15 @@ public class TrainerService {
                 .mapToObj(c -> String.valueOf((char) c))
                 .collect(Collectors.joining());
     }
+
+    @Transactional
+    public Optional<TrainerProfile> findById(Long id) {
+        Trainer trainer = trainerRepository.findById(id).orElseThrow(() -> new RuntimeException("Trainee not found"));
+        return Optional.of(TrainerMapper.toProfile(trainer));
+    }
+
+    public List<Trainer> getAvailableTrainers(String traineeUsername) {
+        return trainerRepository.findTrainersNotAssignedToTraineeByUsername(traineeUsername);
+    }
+
 }

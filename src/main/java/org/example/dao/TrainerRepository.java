@@ -17,5 +17,7 @@ public interface TrainerRepository extends JpaRepository<Trainer,Long> {
     @Query("SELECT t FROM Trainer t WHERE t.user.username = :username AND t.user.password = :password")
     Optional<Trainer> findByUsernameAndPassword(@Param("username") String username, @Param("password") String password);
 
+    @Query("SELECT t FROM Trainer t WHERE t NOT IN (SELECT tr FROM Trainee trainee JOIN trainee.trainers tr WHERE trainee.user.username = :username)")
+    List<Trainer> findTrainersNotAssignedToTraineeByUsername(@Param("username") String username);
 
 }

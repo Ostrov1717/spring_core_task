@@ -6,17 +6,15 @@ import jakarta.persistence.Persistence;
 import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
 import org.example.config.ProjectConfig;
-import org.example.model.Trainee;
 import org.example.model.Trainer;
-import org.example.model.TrainingType;
-import org.example.model.enums.TrainingTypeName;
 import org.example.services.TraineeService;
 import org.example.services.TrainerService;
 import org.example.services.TrainingService;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import java.time.LocalDate;
-import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Slf4j
 public class App {
@@ -26,29 +24,16 @@ public class App {
         EntityManagerFactory entityManagerFactory= Persistence.createEntityManagerFactory("default");
         EntityManager entityManager=entityManagerFactory.createEntityManager();
 
-
         var context = new AnnotationConfigApplicationContext(ProjectConfig.class);
         TrainerService trainerService=context.getBean(TrainerService.class);
         TraineeService traineeService=context.getBean(TraineeService.class);
-//        TrainingService trainingService=context.getBean(TrainingService.class);
+        TrainingService trainingService=context.getBean(TrainingService.class);
+        List<Trainer> trainers=trainerService.getAvailableTrainers("Olga.Kurilenko");
 
-//        trainerService.create("Helen","Doron", TrainingTypeName.ZUMBA);
-//        trainerService.create("Monica","Dobs",TrainingTypeName.FITNESS);
-//        trainerService.create("Wallace", "Tim",TrainingTypeName.YOGA);
-//        trainerService.create("Tom", "Robins",TrainingTypeName.FITNESS);
-//        trainerService.create("Bob", "Getty",TrainingTypeName.STRETCHING);
-//        trainerService.create("Mary", "Popins",TrainingTypeName.RESISTANCE);
-//        trainerService.create("Jack", "Daniels",TrainingTypeName.YOGA);
+        Set<Trainer> set=new HashSet<>();
+        traineeService.updateTraineeTrainers("Kim.Johnson",set);
+        System.out.println(trainers);
 
-//        traineeService.create("Olga","Kurilenko","California", LocalDate.parse("1989-10-05"));
-//        traineeService.create("Kim","Johnson","Chicago", LocalDate.parse("1986-12-30"));
-//        traineeService.create("Tomas","Kuk","Sweden Oslo", LocalDate.parse("1972-02-01"));
-//        traineeService.create("George","TheThird","UK", LocalDate.parse("1962-05-05"));
-
-//        System.out.println(trainerService.changePassword("Wallace.Tim","tWKXEQWsVc","1"));
-//        System.out.println(trainerService.findByUsername("Wallace.Tim","1"));
-//        System.out.println(trainerService.update("Benjamin","Button","Wallace.Tim","1",TrainingTypeName.RESISTANCE,false));
-//        traineeService.delete("Tomas.Kuk","1");
 
         entityManager.close();
         entityManagerFactory.close();

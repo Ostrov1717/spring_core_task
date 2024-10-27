@@ -1,12 +1,17 @@
 package org.example.services;
 
+import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.example.dao.TraineeRepository;
+import org.example.dao.TrainerRepository;
 import org.example.dao.TrainingRepository;
+import org.example.dao.TrainingTypeRepository;
 import org.example.model.Trainee;
 import org.example.model.Trainer;
 import org.example.model.Training;
 import org.example.model.TrainingType;
+import org.example.model.enums.TrainingTypeName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
@@ -21,26 +26,49 @@ import java.util.stream.Collectors;
 @Slf4j
 public class TrainingService {
 
-    private TrainingRepository trainingRepository;
+    private final TrainingRepository trainingRepository;
+    private final TraineeRepository traineeRepository;
+    private final TrainerRepository trainerRepository;
 
-    public TrainingService(TrainingRepository trainingRepository) {
+
+    public TrainingService(TrainingRepository trainingRepository,
+                           TraineeRepository traineeRepository,
+                           TrainerRepository trainerRepository) {
         this.trainingRepository = trainingRepository;
+        this.traineeRepository = traineeRepository;
+        this.trainerRepository = trainerRepository;
     }
 
-    public Optional<Training> create(@NonNull Trainee trainee, @NonNull Trainer trainer, @NonNull String trainingName, @NonNull TrainingType type, @NonNull LocalDateTime trainingDate, @NonNull Duration duration) {
-        log.info("Creation of new training: traineeId={}, trainerId={}, name={}, type={}, date={}, duration={}",
-                trainee.getUser().getId(), trainer.getUser().getId(), trainingName, type, trainingDate, duration);
+    @Transactional
+    public Optional<Training> create(@NonNull Long traineeId, @NonNull Long trainerId, @NonNull String trainingName, @NonNull LocalDateTime trainingDate, @NonNull Duration duration) {
+        log.info("Creation of new training: traineeId={}, trainerId={}, name={}, date={}, duration={}",
+                traineeId, trainerId, trainingName, trainingDate, duration);
         if (trainingName.isBlank()) {
-            log.error("Error: trainingName cannot beblank");
+            log.error("Error: trainingName cannot be blank");
             throw new IllegalArgumentException("Training name cannot be null/blank");
         }
-        Training training = new Training(trainee, trainer, trainingName, type, trainingDate, duration);
-        log.info("Training has been created: name={}, date={}, type={}", trainingName,trainingDate,type);
-        return Optional.of(trainingRepository.save(training));
-    }
+        Trainee trainee = traineeRepository.findById(traineeId)
+                .orElseThrow(() -> new RuntimeException("Trainee not found with ID: " + traineeId));
 
-    public List<Training> findByTrainer(String trainerUsername, LocalDateTime fromDate, LocalDateTime toDate, String traineeName) {
-        log.info("Search trainings by trainer: {}",trainerUsername);
+        Trainer trainer = trainerRepository.findById(trainerId)
+                .orElseThrow(() -> new RuntimeException("Trainer not found with ID: " + trainerId));
+
+        TrainingType trainingType = trainer.getSpecialization();
+
+        Training training = new Training(trainee,trainer, trainingName, trainingType, trainingDate, duration);
+        log.info("Training has been created: name={}, date={}", trainingName,trainingDate);
+        trainingRepository.save(training);
+        return Optional.of(training);
+    }
+    @Transactional
+    public List<Training> findTrainerList(String trainerUsername, LocalDateTime fromDate, LocalDateTime toDate, String traineeName) {
+        log.info("Search trainings for trainer: {}",trainerUsername);
         return trainingRepository.findTrainingsByTrainerAndCriteria(trainerUsername,fromDate,toDate,traineeName);
     }
+    @Transactional
+    public List<Training> findTraineeList(String traineeUsername, LocalDateTime fromDate, LocalDateTime toDate, String trainerName,String trainingType){
+        log.info("Search trainings for trainee: {}",traineeUsername);
+        return trainingRepository.findTrainingsByTraineeAndCriteria(traineeUsername,fromDate,toDate,trainerName,trainingType);
+    }
+
 }

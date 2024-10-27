@@ -1,8 +1,10 @@
 package org.example.profiles;
 
 import lombok.Data;
+import org.example.model.Trainer;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 public class TraineeProfile {

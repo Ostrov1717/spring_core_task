@@ -1,13 +1,18 @@
 package org.example.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.example.profiles.TrainerMapper;
 
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
 @Data
+@EqualsAndHashCode(exclude = {"trainees", "trainings"})
 @Entity
 public class Trainer implements Serializable {
 
@@ -20,13 +25,13 @@ public class Trainer implements Serializable {
     private TrainingType specialization;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", referencedColumnName = "id",unique = true)
+    @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true)
     private User user;
 
     @ManyToMany(mappedBy = "trainers", fetch = FetchType.LAZY)
     private Set<Trainee> trainees = new HashSet<>();
 
-    @OneToMany(mappedBy = "trainer")
+    @OneToMany(mappedBy = "trainer", fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
     private Set<Training> trainings = new HashSet<>();
 
 
@@ -38,15 +43,9 @@ public class Trainer implements Serializable {
         this.user = user;
     }
 
-
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("Trainer{");
-        sb.append("userID=").append(trainerId);
-        sb.append(super.toString());
-        sb.append(", specialization=").append(specialization);
-        sb.append('}');
+        final StringBuffer sb = new StringBuffer(TrainerMapper.toProfile(this).toString());
         return sb.toString();
     }
-
 }

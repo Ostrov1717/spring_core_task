@@ -22,12 +22,4 @@ public class TrainingType {
         this.trainingType = type;
     }
 
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer("TrainingType{");
-        sb.append("id=").append(id);
-        sb.append(", trainingType='").append(trainingType).append('\'');
-        sb.append('}');
-        return sb.toString();
-    }
 }

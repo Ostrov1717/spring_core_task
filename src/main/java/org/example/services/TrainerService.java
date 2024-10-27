@@ -5,14 +5,12 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.example.dao.TrainerRepository;
 import org.example.dao.TrainingTypeRepository;
-import org.example.model.Trainee;
 import org.example.model.Trainer;
 import org.example.model.TrainingType;
 import org.example.model.User;
 import org.example.model.enums.TrainingTypeName;
 import org.example.profiles.TrainerMapper;
 import org.example.profiles.TrainerProfile;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -53,10 +51,14 @@ public class TrainerService {
     }
 
     @Transactional
-    private void authenticate(String username, String password) {
-        if (trainerRepository.findByUsernameAndPassword(username, password).isEmpty()) {
+    public void authenticate(String username, String password) {
+        log.info("Attempting to authenticate Trainer with username: {}", username);
+        boolean authenticated = trainerRepository.findByUsernameAndPassword(username, password).isPresent();
+        if (!authenticated) {
+            log.warn("Authentication failed for username: {}", username);
             throw new IllegalArgumentException("Invalid username or password");
         }
+        log.info("Authentication successful for username: {}", username);
     }
 
     @Transactional
@@ -88,7 +90,7 @@ public class TrainerService {
         log.info("Trainer's data with username: {} has been updated", username);
         return Optional.of(TrainerMapper.toProfile(trainer));
     }
-
+    @Transactional
     public boolean activate(String username, String password) {
         authenticate(username, password);
         log.info("Activating Trainer with username: {}", username);
@@ -103,13 +105,19 @@ public class TrainerService {
         trainer.getUser().setActive(isActive);
         return true;
     }
-
+    @Transactional
     public boolean deactivate(String username, String password) {
         authenticate(username, password);
         log.info("Deactivating Trainer with username: {}", username);
         boolean deactivated = updateActiveStatus(username, false);
         log.info("Trainer with username: {} deactivated", username);
         return true;
+    }
+    public List<Trainer> getAvailableTrainers(String traineeUsername) {
+        log.info("Search trainers  that not assigned on trainee: {}", traineeUsername);
+        List<Trainer> trainers=trainerRepository.findTrainersNotAssignedToTraineeByUsername(traineeUsername);
+        log.info("Found {} trainers for trainee: {}", trainers.size(), traineeUsername);
+        return trainers;
     }
 
     private void validateNames(String firstName, String lastName) {
@@ -145,10 +153,6 @@ public class TrainerService {
     public Optional<TrainerProfile> findById(Long id) {
         Trainer trainer = trainerRepository.findById(id).orElseThrow(() -> new RuntimeException("Trainee not found"));
         return Optional.of(TrainerMapper.toProfile(trainer));
-    }
-
-    public List<Trainer> getAvailableTrainers(String traineeUsername) {
-        return trainerRepository.findTrainersNotAssignedToTraineeByUsername(traineeUsername);
     }
 
 }

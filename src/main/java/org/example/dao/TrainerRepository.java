@@ -1,8 +1,6 @@
 package org.example.dao;
 
-import org.example.model.Trainee;
 import org.example.model.Trainer;
-import org.example.model.Training;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface TrainerRepository extends JpaRepository<Trainer,Long> {
+public interface TrainerRepository extends JpaRepository<Trainer, Long> {
 
     Optional<Trainer> findByUserUsername(String username);
 

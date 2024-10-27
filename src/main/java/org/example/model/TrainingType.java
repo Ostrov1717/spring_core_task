@@ -2,7 +2,6 @@ package org.example.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.example.model.enums.TrainingTypeName;
 
 @Entity
 @Data

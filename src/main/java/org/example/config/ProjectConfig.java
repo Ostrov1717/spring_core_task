@@ -26,6 +26,7 @@ public class ProjectConfig {
         em.setJpaVendorAdapter(vendorAdapter);
         return em;
     }
+
     @Bean
     public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
         JpaTransactionManager transactionManager = new JpaTransactionManager();

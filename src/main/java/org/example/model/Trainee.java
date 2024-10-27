@@ -17,6 +17,7 @@ import java.util.Set;
 @EqualsAndHashCode(exclude = {"trainers", "trainings"})
 @Entity
 public class Trainee implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long traineeId;
@@ -34,7 +35,7 @@ public class Trainee implements Serializable {
             inverseJoinColumns = @JoinColumn(name = "trainer_id"))
     private Set<Trainer> trainers = new HashSet<>();
 
-    @OneToMany(mappedBy = "trainee", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "trainee", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Training> trainings = new HashSet<>();
 
     public Trainee() {

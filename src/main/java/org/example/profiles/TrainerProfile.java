@@ -1,11 +1,8 @@
 package org.example.profiles;
 
 import lombok.Data;
-import org.example.model.Trainee;
-import org.example.model.Training;
 import org.example.model.TrainingType;
 
-import java.util.Set;
 @Data
 public class TrainerProfile {
 

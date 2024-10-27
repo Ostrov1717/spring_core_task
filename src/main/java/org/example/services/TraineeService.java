@@ -4,7 +4,6 @@ import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.example.dao.TraineeRepository;
-import org.example.dao.TrainerRepository;
 import org.example.model.Trainee;
 import org.example.model.Trainer;
 import org.example.model.User;
@@ -24,6 +23,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class TraineeService {
     private final TraineeRepository traineeRepository;
+
     @Autowired
     public TraineeService(TraineeRepository traineeRepository) {
         this.traineeRepository = traineeRepository;
@@ -32,10 +32,10 @@ public class TraineeService {
     @Transactional
     public Optional<TraineeProfile> create(@NonNull String firstName, @NonNull String lastName, String address, LocalDate dateOfBirth) {
         validateNames(firstName, lastName);
-        log.info("Creating a new Trainer: {} {}", firstName, lastName);
+        log.info("Creating a new Trainee: {} {}", firstName, lastName);
         Trainee trainee = new Trainee(new User(firstName, lastName, generateUserName(firstName, lastName), generatePassword(), false), address, dateOfBirth);
         traineeRepository.save(trainee);
-        log.info("Trainer created with username: {}", trainee.getUser().getUsername());
+        log.info("Trainee created with username: {}", trainee.getUser().getUsername());
         return Optional.of(TraineeMapper.toProfile(trainee));
     }
 
@@ -48,10 +48,14 @@ public class TraineeService {
     }
 
     @Transactional
-    private void authenticate(String username, String password) {
-        if (traineeRepository.findByUsernameAndPassword(username, password).isEmpty()) {
+    public void authenticate(String username, String password) {
+        log.info("Attempting to authenticate Trainee with username: {}", username);
+        boolean authenticated = traineeRepository.findByUsernameAndPassword(username, password).isPresent();
+        if (!authenticated) {
+            log.warn("Authentication failed for username: {}", username);
             throw new IllegalArgumentException("Invalid username or password");
         }
+        log.info("Authentication successful for username: {}", username);
     }
 
     @Transactional
@@ -92,27 +96,43 @@ public class TraineeService {
         log.info("Trainee with username: {} successfully deleted", username);
     }
 
+    @Transactional
     public boolean activate(String username, String password) {
         authenticate(username, password);
         log.info("Activating Trainee with username: {}", username);
-        boolean activated=updateActiveStatus(username, true);
+        boolean activated = updateActiveStatus(username, true);
         log.info("Trainee with username: {} activated", username);
         return activated;
     }
 
-    public boolean deactivate(String username, String password) {
-        authenticate(username, password);
-        log.info("Deactivating Trainee with username: {}", username);
-        boolean deactivated=updateActiveStatus(username, false);
-        log.info("Trainee with username: {} deactivated", username);
-        return deactivated;
-    }
     @Transactional
     private boolean updateActiveStatus(String username, boolean isActive) {
         Trainee trainee = findTraineeByUsername(username);
         trainee.getUser().setActive(isActive);
         return true;
     }
+
+    @Transactional
+    public boolean deactivate(String username, String password) {
+        authenticate(username, password);
+        log.info("Deactivating Trainee with username: {}", username);
+        boolean deactivated = updateActiveStatus(username, false);
+        log.info("Trainee with username: {} deactivated", username);
+        return deactivated;
+    }
+    @Transactional
+    public void updateTraineeTrainers(String username, Set<Trainer> newTrainers) {
+        log.info("Updating trainers for trainee with username: {}", username);
+        Trainee trainee = traineeRepository.findByUserUsername(username)
+                .orElseThrow(() -> new RuntimeException("Trainee not found"));
+        log.info("Current number of trainers: {}", trainee.getTrainers().size());
+        newTrainers.forEach(trainer ->
+                log.info("New Trainer - ID: {}, Name: {} {}", trainer.getUser().getId(), trainer.getUser().getFirstName(), trainer.getUser().getLastName()));
+        trainee.setTrainers(newTrainers);
+        traineeRepository.save(trainee);
+        log.info("Trainers for trainee with username {} have been successfully updated. New number of trainers: {}", username, newTrainers.size());
+    }
+
 
     private void validateNames(String firstName, String lastName) {
         if (firstName.isBlank() || lastName.isBlank()) {
@@ -137,16 +157,10 @@ public class TraineeService {
                 .mapToObj(c -> String.valueOf((char) c))
                 .collect(Collectors.joining());
     }
+
     @Transactional
-    public Optional<TraineeProfile> findById(Long id){
-        Trainee trainee=traineeRepository.findById(id).orElseThrow(() -> new RuntimeException("Trainee not found"));
+    public Optional<TraineeProfile> findById(Long id) {
+        Trainee trainee = traineeRepository.findById(id).orElseThrow(() -> new RuntimeException("Trainee not found"));
         return Optional.of(TraineeMapper.toProfile(trainee));
-    }
-    @Transactional
-    public void updateTraineeTrainers(String username, Set<Trainer> newTrainers) {
-        Trainee trainee = traineeRepository.findByUserUsername(username)
-                .orElseThrow(() -> new RuntimeException("Trainee not found"));
-        trainee.setTrainers(newTrainers);
-        traineeRepository.save(trainee);
     }
 }

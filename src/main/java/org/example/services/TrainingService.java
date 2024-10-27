@@ -6,21 +6,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.dao.TraineeRepository;
 import org.example.dao.TrainerRepository;
 import org.example.dao.TrainingRepository;
-import org.example.dao.TrainingTypeRepository;
 import org.example.model.Trainee;
 import org.example.model.Trainer;
 import org.example.model.Training;
 import org.example.model.TrainingType;
-import org.example.model.enums.TrainingTypeName;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -55,20 +50,26 @@ public class TrainingService {
 
         TrainingType trainingType = trainer.getSpecialization();
 
-        Training training = new Training(trainee,trainer, trainingName, trainingType, trainingDate, duration);
-        log.info("Training has been created: name={}, date={}", trainingName,trainingDate);
+        Training training = new Training(trainee, trainer, trainingName, trainingType, trainingDate, duration);
+        log.info("Training has been created: name={}, date={}", trainingName, trainingDate);
         trainingRepository.save(training);
         return Optional.of(training);
     }
+
     @Transactional
     public List<Training> findTrainerList(String trainerUsername, LocalDateTime fromDate, LocalDateTime toDate, String traineeName) {
-        log.info("Search trainings for trainer: {}",trainerUsername);
-        return trainingRepository.findTrainingsByTrainerAndCriteria(trainerUsername,fromDate,toDate,traineeName);
+        log.info("Search trainings for trainer: {}", trainerUsername);
+        List<Training> trainings=trainingRepository.findTrainingsByTrainerAndCriteria(trainerUsername, fromDate, toDate, traineeName);
+        log.info("Found {} trainings for trainer: {}", trainings.size(), trainerUsername);
+        return trainings;
     }
+
     @Transactional
-    public List<Training> findTraineeList(String traineeUsername, LocalDateTime fromDate, LocalDateTime toDate, String trainerName,String trainingType){
-        log.info("Search trainings for trainee: {}",traineeUsername);
-        return trainingRepository.findTrainingsByTraineeAndCriteria(traineeUsername,fromDate,toDate,trainerName,trainingType);
+    public List<Training> findTraineeList(String traineeUsername, LocalDateTime fromDate, LocalDateTime toDate, String trainerName, String trainingType) {
+        log.info("Search trainings for trainee: {}", traineeUsername);
+        List<Training> trainings=trainingRepository.findTrainingsByTraineeAndCriteria(traineeUsername, fromDate, toDate, trainerName, trainingType);
+        log.info("Found {} trainings for trainee: {}", trainings.size(), traineeUsername);
+        return trainings;
     }
 
 }

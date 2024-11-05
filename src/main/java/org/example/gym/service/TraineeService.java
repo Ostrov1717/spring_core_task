@@ -63,7 +63,7 @@ public class TraineeService {
 
     @Transactional
     public TraineeProfile update(String firstName, String lastName, String username, String password, String address, LocalDate dateOfBirth, boolean isActive) {
-//        authenticate(username, password);
+        userservice.authenticate(username, password);
         log.info("Updating Trainee's data with username: {}", username);
         Trainee trainee = findTraineeByUsername(username);
         trainee.getUser().setFirstName(firstName);

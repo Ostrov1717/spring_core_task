@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.gym.dto.TrainerDTO;
 import org.example.gym.dto.TrainerMapper;
 import org.example.gym.dto.TrainerProfile;
 import org.example.gym.entity.Trainer;
@@ -15,8 +16,10 @@ import org.example.gym.repository.TrainerRepository;
 import org.example.gym.repository.TrainingTypeRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +30,7 @@ public class TrainerService {
     private final UserService userService;
 
     @Transactional
-    public Optional<TrainerProfile> create(@NonNull String firstName, @NonNull String lastName, TrainingTypeName trainingTypeName) {
+    public Trainer create(@NonNull String firstName, @NonNull String lastName, TrainingTypeName trainingTypeName) {
         validateNames(firstName, lastName);
         log.info("Creating a new Trainer: {} {}", firstName, lastName);
         TrainingType specialization = findTrainingType(trainingTypeName);
@@ -36,15 +39,15 @@ public class TrainerService {
         Trainer trainer = new Trainer(specialization, new User(firstName, lastName, username, password, false));
         trainerRepository.save(trainer);
         log.info("Trainer created with username: {}", trainer.getUser().getUsername());
-        return Optional.of(TrainerMapper.toProfile(trainer));
+        return trainer;
     }
 
     @Transactional
-    public Optional<TrainerProfile> findByUsername(String username, String password) {
+    public TrainerProfile findByUsername(String username, String password) {
         userService.authenticate(username, password);
         log.info("Searching Trainer by username: {}", username);
         Trainer trainer = findTrainerByUsername(username);
-        return Optional.of(TrainerMapper.toProfile(trainer));
+        return TrainerMapper.toProfile(trainer);
     }
 
     @Transactional
@@ -62,8 +65,8 @@ public class TrainerService {
     }
 
     @Transactional
-    public Optional<TrainerProfile> update(String firstName, String lastName, String username, String password, TrainingTypeName trainingTypeName, boolean isActive) {
-//        authenticate(username, password);
+    public TrainerProfile update(String firstName, String lastName, String username, String password, TrainingTypeName trainingTypeName, boolean isActive) {
+        userService.authenticate(username, password);
         log.info("Updating Trainer's data with username: {}", username);
         Trainer trainer = findTrainerByUsername(username);
         TrainingType specialization = findTrainingType(trainingTypeName);
@@ -72,8 +75,9 @@ public class TrainerService {
         trainer.setSpecialization(specialization);
         trainer.getUser().setActive(isActive);
         log.info("Trainer's data with username: {} has been updated", username);
-        return Optional.of(TrainerMapper.toProfile(trainer));
+        return TrainerMapper.toProfile(trainer);
     }
+
     @Transactional
     public boolean activate(String username, String password) {
 //        authenticate(username, password);
@@ -89,6 +93,7 @@ public class TrainerService {
         trainer.getUser().setActive(isActive);
         return true;
     }
+
     @Transactional
     public boolean deactivate(String username, String password) {
 //        authenticate(username, password);
@@ -97,9 +102,13 @@ public class TrainerService {
         log.info("Trainer with username: {} deactivated", username);
         return true;
     }
-    public List<Trainer> getAvailableTrainers(String traineeUsername) {
+
+    public Set<TrainerDTO> getAvailableTrainers(String traineeUsername) {
         log.info("Search trainers  that not assigned on trainee: {}", traineeUsername);
-        List<Trainer> trainers=trainerRepository.findTrainersNotAssignedToTraineeByUsername(traineeUsername);
+        Set<TrainerDTO> trainers = new HashSet<>();
+        for (Trainer trainer : trainerRepository.findTrainersNotAssignedToTraineeByUsername(traineeUsername)) {
+            trainers.add(new TrainerDTO(trainer.getUser().getUsername(), trainer.getUser().getFirstName(),trainer.getUser().getLastName(), trainer.getSpecialization());
+        }
         log.info("Found {} trainers for trainee: {}", trainers.size(), traineeUsername);
         return trainers;
     }

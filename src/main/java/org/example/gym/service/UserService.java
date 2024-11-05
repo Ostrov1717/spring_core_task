@@ -3,6 +3,8 @@ package org.example.gym.service;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.example.gym.entity.Trainee;
+import org.example.gym.entity.User;
+import org.example.gym.exception.UserNotFoundException;
 import org.example.gym.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,21 @@ public class UserService {
         }
         log.info("Authentication successful for username: {}", username);
     }
+    @Transactional
+    public void changePassword(String username, String oldPassword, String newPassword) {
+        authenticate(username, oldPassword);
+        log.info("Changing password of User with username: {}", username);
+        User user =findUserByUsername(username);
+        user.setPassword(newPassword);
+        log.info("Password successfully changed");
+    }
+
+    @Transactional
+    private User findUserByUsername(String username) {
+        return userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User with username: " + username + " not found."));
+    }
+
+
     public String generatePassword() {
         Random random = new Random();
         return random.ints(33, 122)

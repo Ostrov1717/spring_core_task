@@ -1,4 +1,4 @@
-package org.example.gym.dto;
+package org.example.gym.dto.trainer;
 
 import org.example.gym.entity.TrainingType;
 

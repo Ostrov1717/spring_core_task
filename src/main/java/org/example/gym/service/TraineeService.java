@@ -4,8 +4,8 @@ import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.gym.dto.TraineeMapper;
-import org.example.gym.dto.TraineeProfile;
+import org.example.gym.dto.trainee.TraineeMapper;
+import org.example.gym.dto.trainee.TraineeProfile;
 import org.example.gym.entity.Trainee;
 import org.example.gym.entity.Trainer;
 import org.example.gym.entity.User;
@@ -28,7 +28,6 @@ public class TraineeService {
 
     @Transactional
     public Trainee create(@NonNull String firstName, @NonNull String lastName, String address, LocalDate dateOfBirth) {
-        validateNames(firstName, lastName);
         log.info("Creating a new Trainee: {} {}", firstName, lastName);
         String password = userservice.generatePassword();
         String username = userservice.generateUserName(firstName, lastName);
@@ -77,7 +76,7 @@ public class TraineeService {
 
     @Transactional
     public void delete(String username, String password) {
-//        authenticate(username, password);
+        userservice.authenticate(username, password);
         log.info("Deleting Trainee with username: {}", username);
         Trainee trainee = findTraineeByUsername(username);
         traineeRepository.delete(trainee);
@@ -110,7 +109,7 @@ public class TraineeService {
     }
 
     @Transactional
-    public void updateTraineeTrainers(String username, Set<Trainer> newTrainers) {
+    public Set<Trainer> updateTraineeTrainers(String username, Set<Trainer> newTrainers) {
         log.info("Updating trainers for trainee with username: {}", username);
         Trainee trainee = traineeRepository.findByUserUsername(username)
                 .orElseThrow(() -> new RuntimeException("Trainee not found"));
@@ -120,13 +119,7 @@ public class TraineeService {
         trainee.setTrainers(newTrainers);
         traineeRepository.save(trainee);
         log.info("Trainers for trainee with username {} have been successfully updated. New number of trainers: {}", username, newTrainers.size());
-    }
-
-    private void validateNames(String firstName, String lastName) {
-        if (firstName.isBlank() || lastName.isBlank()) {
-            log.error("Trainee creation failed: blank firstname or lastname");
-            throw new IllegalArgumentException("Trainee without firstname and lastname cannot be created!");
-        }
+        return
     }
 
     @Transactional

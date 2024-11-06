@@ -3,7 +3,7 @@ package org.example.gym.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.example.gym.dto.TrainerMapper;
+import org.example.gym.dto.trainer.TrainerMapper;
 
 import java.io.Serializable;
 import java.util.HashSet;

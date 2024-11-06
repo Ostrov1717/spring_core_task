@@ -8,7 +8,7 @@ import org.example.gym.entity.Trainer;
 import org.example.gym.entity.TrainingType;
 import org.example.gym.entity.User;
 import org.example.gym.entity.TrainingTypeName;
-import org.example.gym.dto.TrainerProfile;
+import org.example.gym.dto.trainer.TrainerProfile;
 import org.junit.jupiter.api.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;

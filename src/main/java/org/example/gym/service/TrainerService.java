@@ -4,9 +4,9 @@ import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.gym.dto.TrainerDTO;
-import org.example.gym.dto.TrainerMapper;
-import org.example.gym.dto.TrainerProfile;
+import org.example.gym.dto.trainer.TrainerDTO;
+import org.example.gym.dto.trainer.TrainerMapper;
+import org.example.gym.dto.trainer.TrainerProfile;
 import org.example.gym.entity.Trainer;
 import org.example.gym.entity.TrainingType;
 import org.example.gym.entity.User;
@@ -17,7 +17,6 @@ import org.example.gym.repository.TrainingTypeRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -31,7 +30,6 @@ public class TrainerService {
 
     @Transactional
     public Trainer create(@NonNull String firstName, @NonNull String lastName, TrainingTypeName trainingTypeName) {
-        validateNames(firstName, lastName);
         log.info("Creating a new Trainer: {} {}", firstName, lastName);
         TrainingType specialization = findTrainingType(trainingTypeName);
         String password = userService.generatePassword();
@@ -103,21 +101,15 @@ public class TrainerService {
         return true;
     }
 
-    public Set<TrainerDTO> getAvailableTrainers(String traineeUsername) {
+    public Set<TrainerDTO> getAvailableTrainers(String traineeUsername, String password) {
+        userService.authenticate(traineeUsername,password);
         log.info("Search trainers  that not assigned on trainee: {}", traineeUsername);
         Set<TrainerDTO> trainers = new HashSet<>();
         for (Trainer trainer : trainerRepository.findTrainersNotAssignedToTraineeByUsername(traineeUsername)) {
-            trainers.add(new TrainerDTO(trainer.getUser().getUsername(), trainer.getUser().getFirstName(),trainer.getUser().getLastName(), trainer.getSpecialization());
+            trainers.add(new TrainerDTO(trainer.getUser().getUsername(), trainer.getUser().getFirstName(),trainer.getUser().getLastName(), trainer.getSpecialization()));
         }
         log.info("Found {} trainers for trainee: {}", trainers.size(), traineeUsername);
         return trainers;
-    }
-
-    private void validateNames(String firstName, String lastName) {
-        if (firstName.isBlank() || lastName.isBlank()) {
-            log.error("Trainer creation failed: blank firstname or lastname");
-            throw new IllegalArgumentException("Trainer without firstname and lastname cannot be created!");
-        }
     }
 
     private TrainingType findTrainingType(TrainingTypeName trainingTypeName) {

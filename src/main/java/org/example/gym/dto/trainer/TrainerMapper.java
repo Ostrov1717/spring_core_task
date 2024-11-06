@@ -1,6 +1,8 @@
-package org.example.gym.dto;
+package org.example.gym.dto.trainer;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.gym.dto.trainee.TraineeDTO;
+import org.example.gym.dto.trainer.TrainerProfile;
 import org.example.gym.entity.Trainee;
 import org.example.gym.entity.Trainer;
 

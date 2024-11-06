@@ -1,7 +1,7 @@
-package org.example.gym.dto;
+package org.example.gym.dto.trainee;
 
 import lombok.Data;
-import org.example.gym.entity.Trainer;
+import org.example.gym.dto.trainer.TrainerDTO;
 
 import java.time.LocalDate;
 import java.util.Set;

@@ -4,7 +4,7 @@ import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.example.gym.dto.TraineeMapper;
+import org.example.gym.dto.trainee.TraineeMapper;
 
 import java.io.Serializable;
 import java.time.LocalDate;

@@ -41,11 +41,11 @@ public class TrainerService {
     }
 
     @Transactional
-    public TrainerProfile findByUsername(String username, String password) {
+    public Trainer findByUsername(String username, String password) {
         userService.authenticate(username, password);
         log.info("Searching Trainer by username: {}", username);
         Trainer trainer = findTrainerByUsername(username);
-        return TrainerMapper.toProfile(trainer);
+        return trainer;
     }
 
     @Transactional
@@ -63,7 +63,7 @@ public class TrainerService {
     }
 
     @Transactional
-    public TrainerProfile update(String firstName, String lastName, String username, String password, TrainingTypeName trainingTypeName, boolean isActive) {
+    public Trainer update(String firstName, String lastName, String username, String password, TrainingTypeName trainingTypeName, boolean isActive) {
         userService.authenticate(username, password);
         log.info("Updating Trainer's data with username: {}", username);
         Trainer trainer = findTrainerByUsername(username);
@@ -73,7 +73,7 @@ public class TrainerService {
         trainer.setSpecialization(specialization);
         trainer.getUser().setActive(isActive);
         log.info("Trainer's data with username: {} has been updated", username);
-        return TrainerMapper.toProfile(trainer);
+        return trainer;
     }
 
     @Transactional
@@ -117,10 +117,10 @@ public class TrainerService {
                 .orElseThrow(() -> new IllegalArgumentException("Specialization not found"));
     }
 
-    @Transactional
-    public Optional<TrainerProfile> findById(Long id) {
-        Trainer trainer = trainerRepository.findById(id).orElseThrow(() -> new RuntimeException("Trainee not found"));
-        return Optional.of(TrainerMapper.toProfile(trainer));
-    }
+//    @Transactional
+//    public Optional<TrainerProfile> findById(Long id) {
+//        Trainer trainer = trainerRepository.findById(id).orElseThrow(() -> new RuntimeException("Trainee not found"));
+//        return Optional.of(TrainerMapper.toProfile(trainer));
+//    }
 
 }

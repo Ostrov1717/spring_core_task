@@ -38,11 +38,10 @@ public class TraineeService {
     }
 
     @Transactional
-    public TraineeProfile findByUsername(String username, String password) {
+    public Trainee findByUsername(String username, String password) {
         userservice.authenticate(username, password);
         log.info("Searching Trainee by username: {}", username);
-        Trainee trainee = findTraineeByUsername(username);
-        return TraineeMapper.toProfile(trainee);
+        return findTraineeByUsername(username);
     }
 
     @Transactional
@@ -61,7 +60,7 @@ public class TraineeService {
     }
 
     @Transactional
-    public TraineeProfile update(String firstName, String lastName, String username, String password, String address, LocalDate dateOfBirth, boolean isActive) {
+    public Trainee update(String firstName, String lastName, String username, String password, String address, LocalDate dateOfBirth, boolean isActive) {
         userservice.authenticate(username, password);
         log.info("Updating Trainee's data with username: {}", username);
         Trainee trainee = findTraineeByUsername(username);
@@ -71,7 +70,7 @@ public class TraineeService {
         trainee.setAddress(address);
         trainee.setDateOfBirth(dateOfBirth);
         log.info("Trainee's data with username: {} has been updated", username);
-        return TraineeMapper.toProfile(trainee);
+        return trainee;
     }
 
     @Transactional
@@ -122,9 +121,9 @@ public class TraineeService {
         return
     }
 
-    @Transactional
-    public Optional<TraineeProfile> findById(Long id) {
-        Trainee trainee = traineeRepository.findById(id).orElseThrow(() -> new RuntimeException("Trainee not found"));
-        return Optional.of(TraineeMapper.toProfile(trainee));
-    }
+//    @Transactional
+//    public Optional<Trainee> findById(Long id) {
+//        Trainee trainee = traineeRepository.findById(id).orElseThrow(() -> new RuntimeException("Trainee not found"));
+//        return Optional.of(trainee);
+//    }
 }

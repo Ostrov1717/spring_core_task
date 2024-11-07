@@ -10,29 +10,40 @@ import java.util.Set;
 
 @Slf4j
 public class TraineeMapper {
-    public static TraineeProfile toProfile(Trainee trainee) {
+    public static TraineeDTO.Response.TraineeProfile toProfile(Trainee trainee) {
         if (trainee == null) {
             log.warn("Provided Trainee object is null, returning null.");
             return null;
         }
         log.debug("Mapping Trainee [{}] to TraineeProfile.", trainee);
-
-        TraineeProfile traineeProfile = new TraineeProfile();
-        traineeProfile.setFirstName(trainee.getUser().getFirstName());
-        traineeProfile.setLastName(trainee.getUser().getLastName());
-        traineeProfile.setUsername(trainee.getUser().getUsername());
-        traineeProfile.setActive(trainee.getUser().isActive());
-        traineeProfile.setAddress(trainee.getAddress());
-        traineeProfile.setDateOfBirth(trainee.getDateOfBirth());
-
-        log.debug("Mapped basic user info: firstName [{}], lastName [{}], username [{}], active [{}].",
-                traineeProfile.getFirstName(), traineeProfile.getLastName(), traineeProfile.getUsername(),
-                traineeProfile.isActive());
-        Set<TrainerDTO> trainers=new HashSet<>();
+        Set<TrainerDTO.Response.TrainerSummury> trainers=new HashSet<>();
         for (Trainer trainer:trainee.getTrainers()) {
-            trainers.add(new TrainerDTO(trainer.getUser().getFirstName(),trainer.getUser().getLastName(),trainer.getUser().getUsername(),trainer.getSpecialization()));
+            trainers.add(new TrainerDTO.Response.TrainerSummury(trainer.getUser().getFirstName(),
+                    trainer.getUser().getLastName(),trainer.getUser().getUsername(),trainer.getSpecialization()));
         }
-        traineeProfile.setTrainers(trainers);
+        TraineeDTO.Response.TraineeProfile traineeProfile = new TraineeDTO.Response.TraineeProfile(trainee.getUser().getFirstName(),
+                trainee.getUser().getLastName(),trainee.getDateOfBirth(),trainee.getAddress(),trainee.getUser().isActive(),trainers);
+        log.debug("Mapped basic user info: firstName [{}], lastName [{}], active [{}].",
+                traineeProfile.getFirstName(), traineeProfile.getLastName(),
+                traineeProfile.isActive());
+        return traineeProfile;
+    }
+    public static TraineeDTO.Response.TraineeProfileFull toProfileFull(Trainee trainee) {
+        if (trainee == null) {
+            log.warn("Provided Trainee object is null, returning null.");
+            return null;
+        }
+        log.debug("Mapping Trainee [{}] to TraineeProfile.", trainee);
+        Set<TrainerDTO.Response.TrainerSummury> trainers=new HashSet<>();
+        for (Trainer trainer:trainee.getTrainers()) {
+            trainers.add(new TrainerDTO.Response.TrainerSummury(trainer.getUser().getFirstName(),
+                    trainer.getUser().getLastName(),trainer.getUser().getUsername(),trainer.getSpecialization()));
+        }
+        TraineeDTO.Response.TraineeProfileFull traineeProfile = new TraineeDTO.Response.TraineeProfileFull(trainee.getUser().getUsername(),trainee.getUser().getFirstName(),
+                trainee.getUser().getLastName(),trainee.getDateOfBirth(),trainee.getAddress(),trainee.getUser().isActive(),trainers);
+        log.debug("Mapped basic user info: firstName [{}], lastName [{}], active [{}].",
+                traineeProfile.getFirstName(), traineeProfile.getLastName(),
+                traineeProfile.isActive());
         return traineeProfile;
     }
 }

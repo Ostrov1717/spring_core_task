@@ -44,10 +44,4 @@ public class Trainee implements Serializable {
         this.dateOfBirth = dateOfBirth;
         this.user = user;
     }
-
-    @Override
-    public String toString() {
-        final StringBuffer sb = new StringBuffer(TraineeMapper.toProfile(this).toString());
-        return sb.toString();
-    }
 }

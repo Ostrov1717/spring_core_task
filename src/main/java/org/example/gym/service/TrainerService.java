@@ -4,20 +4,15 @@ import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.gym.dto.trainer.TrainerDTO;
-import org.example.gym.dto.trainer.TrainerMapper;
-import org.example.gym.dto.trainer.TrainerProfile;
 import org.example.gym.entity.Trainer;
 import org.example.gym.entity.TrainingType;
-import org.example.gym.entity.User;
 import org.example.gym.entity.TrainingTypeName;
+import org.example.gym.entity.User;
 import org.example.gym.exception.UserNotFoundException;
 import org.example.gym.repository.TrainerRepository;
 import org.example.gym.repository.TrainingTypeRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -49,7 +44,7 @@ public class TrainerService {
     }
 
     @Transactional
-    private Trainer findTrainerByUsername(String username) {
+    public Trainer findTrainerByUsername(String username) {
         return trainerRepository.findByUserUsername(username).orElseThrow(() -> new UserNotFoundException("Trainer with username: " + username + " not found."));
     }
 
@@ -101,14 +96,11 @@ public class TrainerService {
         return true;
     }
 
-    public Set<TrainerDTO> getAvailableTrainers(String traineeUsername, String password) {
+    public Set<Trainer> getAvailableTrainers(String traineeUsername, String password) {
         userService.authenticate(traineeUsername,password);
         log.info("Search trainers  that not assigned on trainee: {}", traineeUsername);
-        Set<TrainerDTO> trainers = new HashSet<>();
-        for (Trainer trainer : trainerRepository.findTrainersNotAssignedToTraineeByUsername(traineeUsername)) {
-            trainers.add(new TrainerDTO(trainer.getUser().getUsername(), trainer.getUser().getFirstName(),trainer.getUser().getLastName(), trainer.getSpecialization()));
-        }
-        log.info("Found {} trainers for trainee: {}", trainers.size(), traineeUsername);
+        Set<Trainer> trainers = trainerRepository.findTrainersNotAssignedToTraineeByUsername(traineeUsername);
+        log.info("Found {} active trainers for trainee: {}", trainers.size(), traineeUsername);
         return trainers;
     }
 

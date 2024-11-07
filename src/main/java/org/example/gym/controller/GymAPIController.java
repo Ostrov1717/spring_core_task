@@ -2,16 +2,11 @@ package org.example.gym.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.gym.dto.trainee.TraineeMapper;
-import org.example.gym.dto.trainee.TraineeProfile;
-import org.example.gym.dto.trainee.TraineeUpdateDTO;
 import org.example.gym.dto.trainee.TraineeDTO;
+import org.example.gym.dto.trainee.TraineeMapper;
 import org.example.gym.dto.trainer.TrainerDTO;
 import org.example.gym.dto.trainer.TrainerMapper;
-import org.example.gym.dto.trainer.TrainerProfile;
 import org.example.gym.dto.user.UserDTO;
-import org.example.gym.dto.trainer.TrainerRequestDTO;
-import org.example.gym.dto.trainer.TrainerUpdateDTO;
 import org.example.gym.entity.Trainee;
 import org.example.gym.entity.Trainer;
 import org.example.gym.entity.TrainingTypeName;
@@ -19,13 +14,13 @@ import org.example.gym.service.TraineeService;
 import org.example.gym.service.TrainerService;
 import org.example.gym.service.TrainingService;
 import org.example.gym.service.UserService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.HashSet;
 import java.util.Set;
 
 @RestController
@@ -43,17 +38,18 @@ public class GymAPIController {
     public static final String TRAINER_ENDPOINT = "/trainer";
 
     //    1. Trainee Registration (POST method)
-    @PostMapping("/register")
+    @PostMapping(TRAINEE_ENDPOINT+"/register")
     public ResponseEntity<UserDTO.Response.Login> traineeRegistration(@Valid @RequestBody TraineeDTO.Request.Create dto) {
         Trainee trainee = traineeService.create(dto.getFirstName(), dto.getLastName(), dto.getAddress(), dto.getDateOfBirth());
-        return ResponseEntity.status(HttpStatus.)new UserDTO(trainee.getUser().getUsername(), trainee.getUser().getPassword());
+        return ResponseEntity.ok(new UserDTO.Response.Login(trainee.getUser().getUsername(), trainee.getUser().getPassword()));
     }
 
     //    2. Trainer Registration (POST method)
-    @PostMapping("/register")
+    @PostMapping(TRAINER_ENDPOINT+"/register")
     public ResponseEntity<UserDTO.Response.Login> trainerRegistration(@Valid @RequestBody TrainerDTO.Request.Create dto) {
-        Trainer trainer = trainerService.create(dto.firstName(), dto.lastName(), TrainingTypeName.valueOf(dto.specialization().getTrainingType()));
-        return new UserDTO(trainer.getUser().getUsername(), trainer.getUser().getPassword());
+        Trainer trainer = trainerService.create(dto.getFirstName(), dto.getLastName(),
+                TrainingTypeName.valueOf(dto.getSpecialization().getTrainingType()));
+        return ResponseEntity.ok(new UserDTO.Response.Login(trainer.getUser().getUsername(), trainer.getUser().getPassword()));
     }
 
     //  3. Login (GET method)
@@ -109,31 +105,22 @@ public class GymAPIController {
 
     //    10. Get not assigned on trainee active trainers. (GET method)
     @GetMapping(TRAINEE_ENDPOINT+"/notAssignTrainers")
-    public ResponseEntity<Set<TrainerDTO>> getNotAssingTrainers(@Valid @RequestBody UserDTO userData){
-        return ResponseEntity.ok(trainerService.getAvailableTrainers(userData.username(),userData.password()));
+    public ResponseEntity<Set<TrainerDTO.Response.TrainerSummury>> getNotAssingTrainers(@Valid @RequestBody UserDTO.Request.Login dto){
+       Set<Trainer> trainers=trainerService.getAvailableTrainers(dto.getUsername(), dto.getPassword());
+       return ResponseEntity.ok(TrainerMapper.toSetTrainerSummury(trainers));
     }
 
     //    11. Update Trainee's Trainer List (PUT method)
     @PutMapping
-    public ResponseEntity<Set<TrainerDTO>> updateTraineeTrainers(@RequestBody TraineeTrainersUpdateRequest request){
-        Set
-        return ResponseEntity.ok();
+    public ResponseEntity<Set<TrainerDTO.Response.TrainerSummury>> updateTraineeTrainers(@Valid @RequestBody TraineeDTO.Request.UpdateTrainers dto){
+        Set<Trainer> newTrainers=new HashSet<>();
+        for (TrainerDTO.Response.TrainerUsername usernameDTO: dto.getTrainersUsernames()) {
+            newTrainers.add(trainerService.findTrainerByUsername(usernameDTO.getUsername()));
+        }
+        Set<Trainer> trainers=traineeService.updateTraineeTrainers(dto.getUsername(),dto.getPassword(),newTrainers);
+        return ResponseEntity.ok(TrainerMapper.toSetTrainerSummury(trainers));
     }
 
 //    12. Get Trainee Trainings List (GET method)
 
-
-
-
-    private LocalDate parsingDate(String date) {
-        LocalDate birthDate = null;
-        if (date != null && !date.isEmpty()) {
-            try {
-                birthDate = LocalDate.parse(date); // Парсинг ISO-формата (YYYY-MM-DD)
-            } catch (DateTimeParseException e) {
-                throw new IllegalArgumentException("Invalid date format. Use YYYY-MM-DD.");
-            }
-        }
-        return birthDate;
-    }
 }

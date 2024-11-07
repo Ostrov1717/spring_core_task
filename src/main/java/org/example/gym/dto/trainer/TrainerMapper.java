@@ -1,15 +1,18 @@
 package org.example.gym.dto.trainer;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.gym.dto.trainee.TraineeDTO;
 import org.example.gym.entity.Trainee;
 import org.example.gym.entity.Trainer;
+import org.example.gym.repository.TraineeRepository;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Slf4j
 public class TrainerMapper {
+
     public static TrainerDTO.Response.TrainerProfile toProfile(Trainer trainer) {
         if (trainer == null) {
             log.warn("Provided Trainer object is null, returning null.");
@@ -26,5 +29,17 @@ public class TrainerMapper {
                 trainerProfile.getFirstName(), trainerProfile.getFirstName(),
                 trainerProfile.isActive());
         return trainerProfile;
+    }
+    public static Set<TrainerDTO.Response.TrainerSummury> toSetTrainerSummury(Set<Trainer> trainers) {
+        if (trainers == null) {
+            log.warn("Provided Trainers set is null, returning null.");
+            return null;
+        }
+        Set<TrainerDTO.Response.TrainerSummury> trainerSummurySet=new HashSet<>();
+        for (Trainer trainer:trainers) {
+            trainerSummurySet.add(new TrainerDTO.Response.TrainerSummury(trainer.getUser().getUsername(),
+                    trainer.getUser().getFirstName(),trainer.getUser().getLastName(),trainer.getSpecialization()));
+        }
+        return trainerSummurySet;
     }
 }

@@ -4,8 +4,6 @@ import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.gym.dto.trainee.TraineeMapper;
-import org.example.gym.dto.trainee.TraineeProfile;
 import org.example.gym.entity.Trainee;
 import org.example.gym.entity.Trainer;
 import org.example.gym.entity.User;
@@ -14,7 +12,6 @@ import org.example.gym.repository.TraineeRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Optional;
 import java.util.Set;
 
 
@@ -108,18 +105,18 @@ public class TraineeService {
     }
 
     @Transactional
-    public Set<Trainer> updateTraineeTrainers(String username, Set<Trainer> newTrainers) {
+    public Set<Trainer> updateTraineeTrainers(String username,String password, Set<Trainer> newTrainers) {
+        userservice.authenticate(username,password);
+        Trainee trainee = findTraineeByUsername(username);
         log.info("Updating trainers for trainee with username: {}", username);
-        Trainee trainee = traineeRepository.findByUserUsername(username)
-                .orElseThrow(() -> new RuntimeException("Trainee not found"));
         log.info("Current number of trainers: {}", trainee.getTrainers().size());
-        newTrainers.forEach(trainer ->
-                log.info("New Trainer - ID: {}, Name: {} {}", trainer.getUser().getId(), trainer.getUser().getFirstName(), trainer.getUser().getLastName()));
         trainee.setTrainers(newTrainers);
         traineeRepository.save(trainee);
         log.info("Trainers for trainee with username {} have been successfully updated. New number of trainers: {}", username, newTrainers.size());
-        return
+        return trainee.getTrainers();
     }
+
+
 
 //    @Transactional
 //    public Optional<Trainee> findById(Long id) {

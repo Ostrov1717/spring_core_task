@@ -1,8 +1,10 @@
 package org.example.gym.dto.trainee;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Value;
 import org.example.gym.dto.trainer.TrainerDTO;
+import org.example.gym.dto.user.UserDTO;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -17,6 +19,8 @@ public enum TraineeDTO {;
     private interface Address { String getAddress(); }
     private interface Active { boolean isActive(); }
     private interface Trainers{ Set<TrainerDTO.Response.TrainerSummury> getTrainers();}
+    private interface TrainersUsernames{ Set<TrainerDTO.Response.TrainerUsername> getTrainersUsernames();}
+
     // Раздел для запросов (Request)
     public enum Request {;
 
@@ -44,6 +48,14 @@ public enum TraineeDTO {;
             String address;
             @NotBlank(message = "Trainee's status is required")
             boolean active;
+        }
+        @Value public static class UpdateTrainers implements Username, Password, TrainersUsernames {
+            @NotBlank(message = "Username is required")
+            String username;
+            @NotBlank(message = "Password is required")
+            String password;
+            @NotNull(message = "Trainer's set is required")
+            Set<TrainerDTO.Response.TrainerUsername> trainersUsernames;
         }
     }
     // Раздел для ответов (Response)

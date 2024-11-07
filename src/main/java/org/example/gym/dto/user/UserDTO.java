@@ -33,5 +33,6 @@ public enum UserDTO {;
                         String username;
                         String password;
                 }
+
         }
 }

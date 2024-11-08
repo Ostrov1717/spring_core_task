@@ -13,6 +13,7 @@ import org.example.gym.repository.TrainerRepository;
 import org.example.gym.repository.TrainingTypeRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -108,11 +109,9 @@ public class TrainerService {
         return trainingTypeRepository.findByTrainingType(trainingTypeName.name())
                 .orElseThrow(() -> new IllegalArgumentException("Specialization not found"));
     }
-
-//    @Transactional
-//    public Optional<TrainerProfile> findById(Long id) {
-//        Trainer trainer = trainerRepository.findById(id).orElseThrow(() -> new RuntimeException("Trainee not found"));
-//        return Optional.of(TrainerMapper.toProfile(trainer));
-//    }
+    @Transactional
+    public List<TrainingType> trainingTypes(){
+        return trainingTypeRepository.findAll();
+    }
 
 }

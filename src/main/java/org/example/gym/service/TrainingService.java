@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.gym.entity.Training;
 import org.example.gym.entity.TrainingType;
+import org.example.gym.exception.UserNotFoundException;
 import org.example.gym.repository.TraineeRepository;
 import org.example.gym.repository.TrainerRepository;
 import org.example.gym.entity.Trainee;
@@ -27,25 +28,23 @@ public class TrainingService {
     private final TrainerRepository trainerRepository;
 
     @Transactional
-    public Optional<Training> create(@NonNull Long traineeId, @NonNull Long trainerId, @NonNull String trainingName, @NonNull LocalDateTime trainingDate, @NonNull Duration duration) {
+    public void create(@NonNull String traineeUsername, @NonNull String trainerUsername, @NonNull String trainingName, @NonNull LocalDateTime trainingDate, @NonNull Duration duration) {
+
         log.info("Creation of new training: traineeId={}, trainerId={}, name={}, date={}, duration={}",
-                traineeId, trainerId, trainingName, trainingDate, duration);
+                traineeUsername, trainerUsername, trainingName, trainingDate, duration);
         if (trainingName.isBlank()) {
             log.error("Error: trainingName cannot be blank");
             throw new IllegalArgumentException("Training name cannot be null/blank");
         }
-        Trainee trainee = traineeRepository.findById(traineeId)
-                .orElseThrow(() -> new RuntimeException("Trainee not found with ID: " + traineeId));
+        Trainee trainee = traineeRepository.findByUserUsername(traineeUsername)
+                .orElseThrow(() -> new UserNotFoundException("Trainee with username: " + traineeUsername + " not found."));
 
-        Trainer trainer = trainerRepository.findById(trainerId)
-                .orElseThrow(() -> new RuntimeException("Trainer not found with ID: " + trainerId));
-
+        Trainer trainer = trainerRepository.findByUserUsername(trainerUsername)
+                .orElseThrow(() -> new UserNotFoundException("Trainer with username: " + trainerUsername + " not found."));
         TrainingType trainingType = trainer.getSpecialization();
-
         Training training = new Training(trainee, trainer, trainingName, trainingType, trainingDate, duration);
         log.info("Training has been created: name={}, date={}", trainingName, trainingDate);
         trainingRepository.save(training);
-        return Optional.of(training);
     }
 
     @Transactional
@@ -63,5 +62,4 @@ public class TrainingService {
         log.info("Found {} trainings for trainee: {}", trainings.size(), traineeUsername);
         return trainings;
     }
-
 }

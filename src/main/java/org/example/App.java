@@ -25,6 +25,8 @@ public class App {
         TraineeService traineeService = context.getBean(TraineeService.class);
         TrainingService trainingService = context.getBean(TrainingService.class);
         UserService userservice=context.getBean(UserService.class);
+        log.info(trainerService.trainingTypes().toString());
+
 ////        1. Create Trainer profile.
 //        log.info(trainerService.create("Brad", "Pitt", TrainingTypeName.RESISTANCE).toString() + "\n");
 //

@@ -8,8 +8,11 @@ public enum UserDTO {;
         private interface Username { String getUsername(); }
         private interface Password { String getPassword(); }
         private interface NewPassword { String getNewPassword(); }
+        private interface Active {boolean isActive();}
 
-        public enum Request{;
+        public enum Request {
+                ;
+
                 @Value
                 public static class Login implements Username, Password {
                         @NotBlank(message = "Username is required")
@@ -17,14 +20,25 @@ public enum UserDTO {;
                         @NotBlank(message = "Password is required")
                         String password;
                 }
+
                 @Value
                 public static class ChangeLogin implements Username, Password, NewPassword {
                         @NotBlank(message = "Username is required")
                         String username;
                         @NotBlank(message = "Old password is required")
                         String password;
-                        @NotBlank (message = "New password is required")
+                        @NotBlank(message = "New password is required")
                         String newPassword;
+                }
+
+                @Value
+                public static class ActivateOrDeactivate implements Username, Active {
+                        @NotBlank(message = "Username is required")
+                        String username;
+                        @NotBlank(message = "Password is required")
+                        String password;
+                        @NotBlank(message = "Active status is required")
+                        boolean active;
                 }
         }
         public enum Response{;

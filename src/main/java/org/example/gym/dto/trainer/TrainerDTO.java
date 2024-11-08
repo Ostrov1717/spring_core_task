@@ -3,7 +3,6 @@ package org.example.gym.dto.trainer;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Value;
 import org.example.gym.dto.trainee.TraineeDTO;
-import org.example.gym.dto.user.UserDTO;
 import org.example.gym.entity.TrainingType;
 
 import java.util.Set;

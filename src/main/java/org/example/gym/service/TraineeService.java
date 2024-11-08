@@ -81,7 +81,7 @@ public class TraineeService {
 
     @Transactional
     public boolean activate(String username, String password) {
-//        authenticate(username, password);
+        userservice.authenticate(username, password);
         log.info("Activating Trainee with username: {}", username);
         boolean activated = updateActiveStatus(username, true);
         log.info("Trainee with username: {} activated", username);
@@ -97,7 +97,7 @@ public class TraineeService {
 
     @Transactional
     public boolean deactivate(String username, String password) {
-//        authenticate(username, password);
+        userservice.authenticate(username, password);
         log.info("Deactivating Trainee with username: {}", username);
         boolean deactivated = updateActiveStatus(username, false);
         log.info("Trainee with username: {} deactivated", username);
@@ -115,12 +115,4 @@ public class TraineeService {
         log.info("Trainers for trainee with username {} have been successfully updated. New number of trainers: {}", username, newTrainers.size());
         return trainee.getTrainers();
     }
-
-
-
-//    @Transactional
-//    public Optional<Trainee> findById(Long id) {
-//        Trainee trainee = traineeRepository.findById(id).orElseThrow(() -> new RuntimeException("Trainee not found"));
-//        return Optional.of(trainee);
-//    }
 }

@@ -31,9 +31,9 @@ public class GymAPIController {
     private final TrainingService trainingService;
     private final UserService userService;
 
-    public static final String BASE_URL = "";
-    public static final String TRAINEE_ENDPOINT = "/trainee";
-    public static final String TRAINER_ENDPOINT = "/trainer";
+    public static final String BASE_URL = "gym";
+    public static final String TRAINEE_ENDPOINT = "trainee";
+    public static final String TRAINER_ENDPOINT = "trainer";
 
     //    1. Trainee Registration (POST method)
     @PostMapping(TRAINEE_ENDPOINT + "/register")
@@ -144,9 +144,9 @@ public class GymAPIController {
     @PatchMapping(TRAINEE_ENDPOINT+"/status")
     public ResponseEntity<Void> activateOrDeactivateTrainee(@Valid @RequestBody UserDTO.Request.ActivateOrDeactivate dto){
         if(dto.isActive()){
-            traineeService.activate(dto.getUsername(), dto.getPassword());
+            userService.activate(dto.getUsername(), dto.getPassword());
         } else {
-            traineeService.deactivate(dto.getUsername(), dto.getPassword());
+            userService.deactivate(dto.getUsername(), dto.getPassword());
         }
         return ResponseEntity.ok().build();
     }
@@ -154,15 +154,15 @@ public class GymAPIController {
     @PatchMapping(TRAINER_ENDPOINT+"/status")
     public ResponseEntity<Void> activateOrDeactivateTrainer(@Valid @RequestBody UserDTO.Request.ActivateOrDeactivate dto){
         if(dto.isActive()){
-            trainerService.activate(dto.getUsername(), dto.getPassword());
+            userService.activate(dto.getUsername(), dto.getPassword());
         } else {
-            trainerService.deactivate(dto.getUsername(), dto.getPassword());
+            userService.deactivate(dto.getUsername(), dto.getPassword());
         }
         return ResponseEntity.ok().build();
     }
 
 //  17. Get Training types (GET method)
-    @GetMapping
+    @GetMapping("/types")
     public List<TrainingType> getTrainingTypes(){
         return trainerService.trainingTypes();
     }

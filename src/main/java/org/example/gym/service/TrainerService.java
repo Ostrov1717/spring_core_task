@@ -50,15 +50,6 @@ public class TrainerService {
     }
 
     @Transactional
-    public void changePassword(String username, String oldPassword, String newPassword) {
-        userService.authenticate(username, oldPassword);
-        log.info("Changing password of Trainer with username: {}", username);
-        Trainer trainer = findTrainerByUsername(username);
-        trainer.getUser().setPassword(newPassword);
-        log.info("Password successfully changed");
-    }
-
-    @Transactional
     public Trainer update(String firstName, String lastName, String username, String password, TrainingTypeName trainingTypeName, boolean isActive) {
         userService.authenticate(username, password);
         log.info("Updating Trainer's data with username: {}", username);
@@ -71,32 +62,6 @@ public class TrainerService {
         log.info("Trainer's data with username: {} has been updated", username);
         return trainer;
     }
-
-    @Transactional
-    public boolean activate(String username, String password) {
-//        authenticate(username, password);
-        log.info("Activating Trainer with username: {}", username);
-        boolean activated = updateActiveStatus(username, true);
-        log.info("Trainer with username: {} activated", username);
-        return activated;
-    }
-
-    @Transactional
-    private boolean updateActiveStatus(String username, boolean isActive) {
-        Trainer trainer = findTrainerByUsername(username);
-        trainer.getUser().setActive(isActive);
-        return true;
-    }
-
-    @Transactional
-    public boolean deactivate(String username, String password) {
-//        authenticate(username, password);
-        log.info("Deactivating Trainer with username: {}", username);
-        boolean deactivated = updateActiveStatus(username, false);
-        log.info("Trainer with username: {} deactivated", username);
-        return true;
-    }
-
     public Set<Trainer> getAvailableTrainers(String traineeUsername, String password) {
         userService.authenticate(traineeUsername,password);
         log.info("Search trainers  that not assigned on trainee: {}", traineeUsername);

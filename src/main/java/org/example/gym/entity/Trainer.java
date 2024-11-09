@@ -3,6 +3,7 @@ package org.example.gym.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.example.gym.dto.trainer.TrainerDTO;
 import org.example.gym.dto.trainer.TrainerMapper;
 
 import java.io.Serializable;
@@ -42,7 +43,7 @@ public class Trainer implements Serializable {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer(TrainerMapper.toProfile(this).toString());
-        return sb.toString();
+        TrainerDTO.Response.TrainerProfile profile=TrainerMapper.toProfile(this);
+        return profile.toString();
     }
 }

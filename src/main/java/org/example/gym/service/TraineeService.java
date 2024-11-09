@@ -20,9 +20,7 @@ import java.util.Set;
 @Slf4j
 public class TraineeService {
     private final TraineeRepository traineeRepository;
-
     private final UserService userservice;
-
     @Transactional
     public Trainee create(@NonNull String firstName, @NonNull String lastName, String address, LocalDate dateOfBirth) {
         log.info("Creating a new Trainee: {} {}", firstName, lastName);
@@ -47,16 +45,6 @@ public class TraineeService {
     }
 
     @Transactional
-    public boolean changePassword(String username, String oldPassword, String newPassword) {
-//        authenticate(username, oldPassword);
-        log.info("Changing password of Trainee with username: {}", username);
-        Trainee trainee = findTraineeByUsername(username);
-        trainee.getUser().setPassword(newPassword);
-        log.info("Password successfully changed");
-        return true;
-    }
-
-    @Transactional
     public Trainee update(String firstName, String lastName, String username, String password, String address, LocalDate dateOfBirth, boolean isActive) {
         userservice.authenticate(username, password);
         log.info("Updating Trainee's data with username: {}", username);
@@ -78,32 +66,6 @@ public class TraineeService {
         traineeRepository.delete(trainee);
         log.info("Trainee with username: {} successfully deleted", username);
     }
-
-    @Transactional
-    public boolean activate(String username, String password) {
-        userservice.authenticate(username, password);
-        log.info("Activating Trainee with username: {}", username);
-        boolean activated = updateActiveStatus(username, true);
-        log.info("Trainee with username: {} activated", username);
-        return activated;
-    }
-
-    @Transactional
-    private boolean updateActiveStatus(String username, boolean isActive) {
-        Trainee trainee = findTraineeByUsername(username);
-        trainee.getUser().setActive(isActive);
-        return true;
-    }
-
-    @Transactional
-    public boolean deactivate(String username, String password) {
-        userservice.authenticate(username, password);
-        log.info("Deactivating Trainee with username: {}", username);
-        boolean deactivated = updateActiveStatus(username, false);
-        log.info("Trainee with username: {} deactivated", username);
-        return deactivated;
-    }
-
     @Transactional
     public Set<Trainer> updateTraineeTrainers(String username,String password, Set<Trainer> newTrainers) {
         userservice.authenticate(username,password);

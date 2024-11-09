@@ -4,6 +4,7 @@ import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.example.gym.dto.trainee.TraineeDTO;
 import org.example.gym.dto.trainee.TraineeMapper;
 
 import java.io.Serializable;
@@ -43,5 +44,11 @@ public class Trainee implements Serializable {
         this.address = address;
         this.dateOfBirth = dateOfBirth;
         this.user = user;
+    }
+
+    @Override
+    public String toString() {
+        TraineeDTO.Response.TraineeProfile profile=TraineeMapper.toProfile(this);
+        return profile.toString();
     }
 }

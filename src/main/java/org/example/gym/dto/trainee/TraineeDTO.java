@@ -2,15 +2,15 @@ package org.example.gym.dto.trainee;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Value;
 import org.example.gym.dto.trainer.TrainerDTO;
-import org.example.gym.dto.user.UserDTO;
 
 import java.time.LocalDate;
 import java.util.Set;
 
 public enum TraineeDTO {;
-    // Интерфейсы для полей, включая те, которые получаются из User
     private interface Username { String getUsername(); }
     private interface Password { String getPassword(); }
     private interface FirstName { String getFirstName(); }
@@ -21,11 +21,8 @@ public enum TraineeDTO {;
     private interface Trainers{ Set<TrainerDTO.Response.TrainerSummury> getTrainers();}
     private interface TrainersUsernames{ Set<TrainerDTO.Response.TrainerUsername> getTrainersUsernames();}
 
-    // Раздел для запросов (Request)
     public enum Request {;
-
-        // DTO для создания нового Trainee, данные пользователя включены как составные
-        @Value public static class Create implements FirstName, LastName, DateOfBirth, Address {
+        @Data public static class Create implements FirstName, LastName, DateOfBirth, Address {
             @NotBlank(message = "First name is required")
             String firstName;
             @NotBlank(message = "Last name is required")
@@ -33,9 +30,7 @@ public enum TraineeDTO {;
             LocalDate dateOfBirth;
             String address;
         }
-
-        // DTO для обновления профиля Trainee
-        @Value public static class Update implements Username, Password, FirstName, LastName, DateOfBirth, Address, Active {
+        @Data public static class Update implements Username, Password, FirstName, LastName, DateOfBirth, Address, Active {
             @NotBlank(message = "Username is required")
             String username;
             @NotBlank(message = "Password is required")
@@ -49,7 +44,7 @@ public enum TraineeDTO {;
             @NotBlank(message = "Trainee's status is required")
             boolean active;
         }
-        @Value public static class UpdateTrainers implements Username, Password, TrainersUsernames {
+        @Data public static class UpdateTrainers implements Username, Password, TrainersUsernames {
             @NotBlank(message = "Username is required")
             String username;
             @NotBlank(message = "Password is required")
@@ -58,10 +53,11 @@ public enum TraineeDTO {;
             Set<TrainerDTO.Response.TrainerUsername> trainersUsernames;
         }
     }
-    // Раздел для ответов (Response)
-    public enum Response {;
 
-        @Value public static class TraineeProfile implements FirstName, LastName, DateOfBirth, Address, Active, Trainers {
+    public enum Response {;
+        @Data
+        @AllArgsConstructor
+        public static class TraineeProfile implements FirstName, LastName, DateOfBirth, Address, Active, Trainers {
             String firstName;
             String lastName;
             LocalDate dateOfBirth;

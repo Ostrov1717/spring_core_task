@@ -21,7 +21,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @ComponentScan(basePackages = "org.example.gym")
 @EnableJpaRepositories(basePackages = "org.example.gym.repository")
 @EnableTransactionManagement
-public class ProjectConfig {
+@EnableWebMvc
+public class ProjectConfig implements WebMvcConfigurer {
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
@@ -36,5 +37,9 @@ public class ProjectConfig {
         JpaTransactionManager transactionManager = new JpaTransactionManager();
         transactionManager.setEntityManagerFactory(emf);
         return transactionManager;
+    }
+    @Bean
+    public MappingJackson2HttpMessageConverter messageConverter() {
+        return new MappingJackson2HttpMessageConverter(new ObjectMapper());
     }
 }

@@ -1,9 +1,7 @@
 package org.example;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.LifecycleException;
 import org.example.gym.config.ProjectConfig;
-import org.example.gym.entity.TrainingTypeName;
 import org.example.gym.service.TraineeService;
 import org.example.gym.service.TrainerService;
 import org.example.gym.service.TrainingService;
@@ -17,13 +15,15 @@ import java.time.LocalDateTime;
 @Slf4j
 public class App {
 
-    public static void main(String[] args) throws LifecycleException {
+    public static void main(String[] args) {
 
         var context = new AnnotationConfigApplicationContext(ProjectConfig.class);
         TraineeService traineeService=context.getBean(TraineeService.class);
         TrainerService trainerService=context.getBean(TrainerService.class);
         UserService userservice=context.getBean(UserService.class);
         TrainingService trainingService=context.getBean(TrainingService.class);
+
+
 
 //////        1. Create Trainer profile.
 //        log.info(trainerService.create("Brad", "Pitt", TrainingTypeName.RESISTANCE).toString() + "\n");

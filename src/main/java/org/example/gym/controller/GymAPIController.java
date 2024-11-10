@@ -16,6 +16,7 @@ import org.example.gym.service.TrainingService;
 import org.example.gym.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashSet;
@@ -38,8 +39,7 @@ public class GymAPIController {
     //    1. Trainee Registration (POST method)
     @PostMapping(TRAINEE_ENDPOINT + "/register")
     public ResponseEntity<UserDTO.Response.Login> traineeRegistration(@Valid @RequestBody TraineeDTO.Request.Create dto) {
-        Trainee trainee = traineeService.create(dto.getFirstName(), dto.getLastName(), dto.getAddress(), dto.getDateOfBirth());
-        return ResponseEntity.ok(new UserDTO.Response.Login(trainee.getUser().getUsername(), trainee.getUser().getPassword()));
+        return ResponseEntity.ok(traineeService.create(dto.getFirstName(), dto.getLastName(), dto.getAddress(), dto.getDateOfBirth()));
     }
 
     //    2. Trainer Registration (POST method)
@@ -52,23 +52,24 @@ public class GymAPIController {
 
     //  3. Login (GET method)
     @GetMapping("/login")
-    public ResponseEntity<Void> login(@Valid @RequestBody UserDTO.Request.Login dto) {
+    public ResponseEntity<Void> login(@Valid @ModelAttribute UserDTO.Request.Login dto) {
         userService.authenticate(dto.getUsername(), dto.getPassword());
         return ResponseEntity.ok().build();
     }
 
     //    4. Change Login (PUT method)
-    @PutMapping("/changeLogin")
+    @PutMapping("/change-login")
     public ResponseEntity<Void> changeLogin(@Valid @RequestBody UserDTO.Request.ChangeLogin dto) {
         userService.changePassword(dto.getUsername(), dto.getPassword(), dto.getNewPassword());
         return ResponseEntity.ok().build();
     }
 
     //  5. Get Trainee Profile (GET method
-    @GetMapping(TRAINEE_ENDPOINT + "/profile")
+    @GetMapping("/profile")
     public ResponseEntity<TraineeDTO.Response.TraineeProfile> getTraineeProfile(@Valid @RequestBody UserDTO.Request.Login dto) {
-        Trainee trainee = traineeService.findByUsername(dto.getUsername(), dto.getPassword());
-        return ResponseEntity.ok(TraineeMapper.toProfile(trainee));
+        TraineeDTO.Response.TraineeProfile trainee = traineeService.findByUsername(dto.getUsername(), dto.getPassword());
+        System.out.println(trainee);
+        return ResponseEntity.ok(trainee);
     }
 
     //  6. Update Trainee Profile (PUT method)
@@ -130,30 +131,21 @@ public class GymAPIController {
     //  13. Get Trainer Trainings List (GET method)
     @GetMapping(TRAINER_ENDPOINT + "/trainings")
     public ResponseEntity<List<TrainingDTO.Response.TrainingProfileForTrainer>> getTrainerTrainings(@Valid @RequestBody TrainingDTO.Request.TrainerTrainings dto) {
-        List<Training> trainings = trainingService.findTrainerList(dto.getTrainerUsername(),dto.getPeriodFrom(),dto.getPeriodTo(),dto.getTraineeUsername());
+        List<Training> trainings = trainingService.findTrainerList(dto.getTrainerUsername(), dto.getPeriodFrom(), dto.getPeriodTo(), dto.getTraineeUsername());
         return ResponseEntity.ok(TrainingMapper.toListForTrainer(trainings));
     }
 
-//    14. Add Training (POST method)
+    //    14. Add Training (POST method)
     @PostMapping()
-    public ResponseEntity<Void> createTraining(@Valid @RequestBody TrainingDTO.Request.Create dto){
-        trainingService.create(dto.getTraineeUsername(),dto.getTrainerUsername(),dto.getTrainingName(),dto.getTrainingDate(),dto.getTrainingDuration());
+    public ResponseEntity<Void> createTraining(@Valid @RequestBody TrainingDTO.Request.Create dto) {
+        trainingService.create(dto.getTraineeUsername(), dto.getTrainerUsername(), dto.getTrainingName(), dto.getTrainingDate(), dto.getTrainingDuration());
         return ResponseEntity.ok().build();
     }
-//    15. Activate/De-Activate Trainee (PATCH method)
-    @PatchMapping(TRAINEE_ENDPOINT+"/status")
-    public ResponseEntity<Void> activateOrDeactivateTrainee(@Valid @RequestBody UserDTO.Request.ActivateOrDeactivate dto){
-        if(dto.isActive()){
-            userService.activate(dto.getUsername(), dto.getPassword());
-        } else {
-            userService.deactivate(dto.getUsername(), dto.getPassword());
-        }
-        return ResponseEntity.ok().build();
-    }
-//    16. Activate/De-Activate Trainer (PATCH method)
-    @PatchMapping(TRAINER_ENDPOINT+"/status")
-    public ResponseEntity<Void> activateOrDeactivateTrainer(@Valid @RequestBody UserDTO.Request.ActivateOrDeactivate dto){
-        if(dto.isActive()){
+
+    //    15. Activate/De-Activate Trainee (PATCH method)
+    @PatchMapping(TRAINEE_ENDPOINT + "/status")
+    public ResponseEntity<Void> activateOrDeactivateTrainee(@Valid @RequestBody UserDTO.Request.ActivateOrDeactivate dto) {
+        if (dto.isActive()) {
             userService.activate(dto.getUsername(), dto.getPassword());
         } else {
             userService.deactivate(dto.getUsername(), dto.getPassword());
@@ -161,9 +153,21 @@ public class GymAPIController {
         return ResponseEntity.ok().build();
     }
 
-//  17. Get Training types (GET method)
+    //    16. Activate/De-Activate Trainer (PATCH method)
+    @PatchMapping(TRAINER_ENDPOINT + "/status")
+    public ResponseEntity<Void> activateOrDeactivateTrainer(@Valid @RequestBody UserDTO.Request.ActivateOrDeactivate dto) {
+        if (dto.isActive()) {
+            userService.activate(dto.getUsername(), dto.getPassword());
+        } else {
+            userService.deactivate(dto.getUsername(), dto.getPassword());
+        }
+        return ResponseEntity.ok().build();
+    }
+
+    //  17. Get Training types (GET method)
     @GetMapping("/types")
-    public List<TrainingType> getTrainingTypes(){
+    public List<TrainingType> getTrainingTypes(@RequestBody UserDTO.Request.Use dto) {
+        System.out.println(dto.getUsername());
         return trainerService.trainingTypes();
     }
 }

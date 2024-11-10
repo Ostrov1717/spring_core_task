@@ -4,6 +4,9 @@ import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.gym.dto.trainee.TraineeDTO;
+import org.example.gym.dto.trainee.TraineeMapper;
+import org.example.gym.dto.user.UserDTO;
 import org.example.gym.entity.Trainee;
 import org.example.gym.entity.Trainer;
 import org.example.gym.entity.User;
@@ -22,21 +25,23 @@ public class TraineeService {
     private final TraineeRepository traineeRepository;
     private final UserService userservice;
     @Transactional
-    public Trainee create(@NonNull String firstName, @NonNull String lastName, String address, LocalDate dateOfBirth) {
+    public UserDTO.Response.Login create(String firstName, String lastName, String address, LocalDate dateOfBirth) {
         log.info("Creating a new Trainee: {} {}", firstName, lastName);
         String password = userservice.generatePassword();
         String username = userservice.generateUserName(firstName, lastName);
         Trainee trainee = new Trainee(new User(firstName, lastName, username, password, false), address, dateOfBirth);
         traineeRepository.save(trainee);
         log.info("Trainee created with username: {}", trainee.getUser().getUsername());
-        return trainee;
+        return new UserDTO.Response.Login(trainee.getUser().getUsername(), trainee.getUser().getPassword());
     }
 
     @Transactional
-    public Trainee findByUsername(String username, String password) {
+    public TraineeDTO.Response.TraineeProfile findByUsername(String username, String password) {
         userservice.authenticate(username, password);
         log.info("Searching Trainee by username: {}", username);
-        return findTraineeByUsername(username);
+        Trainee trainee=findTraineeByUsername(username);
+        TraineeDTO.Response.TraineeProfile traineeProfile=TraineeMapper.toProfile(trainee);
+        return traineeProfile;
     }
 
     @Transactional

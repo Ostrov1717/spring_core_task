@@ -1,11 +1,9 @@
 package org.example.gym.dto.trainer;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.gym.dto.trainee.TraineeDTO;
 import org.example.gym.entity.Trainee;
 import org.example.gym.entity.Trainer;
-import org.example.gym.repository.TraineeRepository;
 
 import java.util.HashSet;
 import java.util.Set;

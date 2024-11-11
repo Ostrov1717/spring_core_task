@@ -4,7 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Value;
 import org.example.gym.dto.trainer.TrainerDTO;
 
 import java.time.LocalDate;
@@ -41,7 +40,7 @@ public enum TraineeDTO {;
             String lastName;
             LocalDate dateOfBirth;
             String address;
-            @NotBlank(message = "Trainee's status is required")
+            @NotNull(message = "Trainee's status is required")
             boolean active;
         }
         @Data public static class UpdateTrainers implements Username, Password, TrainersUsernames {
@@ -65,7 +64,9 @@ public enum TraineeDTO {;
             boolean active;
             Set<TrainerDTO.Response.TrainerSummury> trainers;
         }
-        @Value public static class TraineeProfileFull implements Username, FirstName, LastName, DateOfBirth, Address, Active, Trainers {
+        @Data
+        @AllArgsConstructor
+        public static class TraineeProfileFull implements Username, FirstName, LastName, DateOfBirth, Address, Active, Trainers {
             String username;
             String firstName;
             String lastName;
@@ -74,7 +75,9 @@ public enum TraineeDTO {;
             boolean active;
             Set<TrainerDTO.Response.TrainerSummury> trainers;
         }
-        @Value public static class TraineeSummury implements Username, FirstName, LastName {
+        @Data
+        @AllArgsConstructor
+        public static class TraineeSummury implements Username, FirstName, LastName {
             String username;
             String firstName;
             String lastName;

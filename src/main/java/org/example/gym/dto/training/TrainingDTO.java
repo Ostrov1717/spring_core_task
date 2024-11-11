@@ -2,7 +2,8 @@ package org.example.gym.dto.training;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Value;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.example.gym.entity.TrainingType;
 
 import java.time.Duration;
@@ -20,7 +21,7 @@ public enum TrainingDTO {;
     private interface TrainingDuration{Duration getTrainingDuration();}
 
     public enum Request{;
-        @Value
+        @Data
         public static class Create implements TraineeName,TrainerName,TrainingName,TrainingDate,TrainingDuration{
             @NotBlank(message = "Trainee username is required")
             String traineeUsername;
@@ -33,23 +34,19 @@ public enum TrainingDTO {;
             @NotNull(message = "Training duration is required")
             Duration trainingDuration;
         }
-        @Value
-        public static class TraineeTrainings implements TraineeName,Password,PeriodFrom,PeriodTo,TrainerName,TrainingSpecial{
+        @Data
+        public static class TraineeTrainings implements TraineeName,PeriodFrom,PeriodTo,TrainerName,TrainingSpecial{
         @NotBlank(message = "Trainee username is required")
         String traineeUsername;
-        @NotBlank(message = "Password is required")
-        String password;
         LocalDateTime periodFrom;
         LocalDateTime periodTo;
         String trainerUsername;
         TrainingType trainingType;
     }
-        @Value
-        public static class TrainerTrainings implements TrainerName,Password,PeriodFrom,PeriodTo,TraineeName,TrainingSpecial{
+        @Data
+        public static class TrainerTrainings implements TrainerName, PeriodFrom,PeriodTo,TraineeName,TrainingSpecial{
             @NotBlank(message = "Trainer username is required")
             String trainerUsername;
-            @NotBlank(message = "Password is required")
-            String password;
             LocalDateTime periodFrom;
             LocalDateTime periodTo;
             String traineeUsername;
@@ -57,7 +54,8 @@ public enum TrainingDTO {;
         }
     }
     public enum Response{;
-        @Value
+        @Data
+        @AllArgsConstructor
         public static class TrainingProfileForTrainee implements TrainingName,TrainingDate,TrainingSpecial,TrainingDuration,TrainerName{
         String trainingName;
         LocalDateTime trainingDate;
@@ -65,7 +63,8 @@ public enum TrainingDTO {;
         Duration trainingDuration;
         String trainerUsername;
     }
-        @Value
+        @Data
+        @AllArgsConstructor
         public static class TrainingProfileForTrainer implements TrainingName,TrainingDate,TrainingSpecial,TrainingDuration, TraineeName {
             String trainingName;
             LocalDateTime trainingDate;

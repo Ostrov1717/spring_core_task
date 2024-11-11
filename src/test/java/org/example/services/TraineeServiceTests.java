@@ -18,39 +18,39 @@ import static org.mockito.Mockito.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TraineeServiceTests {
-//
-//    @Mock
-//    private TraineeRepository traineeRepository;
-//
-//    @InjectMocks
-//    private TraineeService traineeService;
-//
-//    @BeforeEach
-//    void setUp() {
-//        MockitoAnnotations.openMocks(this);
-//    }
-//
-//    @Test
-//    @DisplayName("Create Trainee Test")
-//    @Order(1)
-//    void createTraineeTest() {
-//
-//        String firstName = "John";
-//        String lastName = "Doe";
-//        String address = "California";
-//        LocalDate dob = LocalDate.of(1990, 1, 1);
-//
-//        Trainee trainee = new Trainee(new User(firstName, lastName, "John.Doe", "1234", false), address, dob);
-//        when(traineeRepository.save(any(Trainee.class))).thenReturn(trainee);
-//
-////        Optional<TraineeProfile> result = traineeService.create(firstName, lastName, address, dob);
-//
-//        assertTrue(result.isPresent());
-//        assertEquals("John.Doe", result.get().getUsername());
-//        assertEquals("California", result.get().getAddress());
-//        assertEquals(dob, result.get().getDateOfBirth());
-//        verify(traineeRepository, times(1)).save(any(Trainee.class));
-//    }
+
+    @Mock
+    private TraineeRepository traineeRepository;
+
+    @InjectMocks
+    private TraineeService traineeService;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    @DisplayName("Create Trainee Test")
+    @Order(1)
+    void createTraineeTest() {
+
+        String firstName = "John";
+        String lastName = "Doe";
+        String address = "California";
+        LocalDate dob = LocalDate.of(1990, 1, 1);
+
+        Trainee trainee = new Trainee(new User(firstName, lastName, "John.Doe", "1234", false), address, dob);
+        when(traineeRepository.save(any(Trainee.class))).thenReturn(trainee);
+
+        Optional<Trainee> result = traineeService.create(firstName, lastName, address, dob);
+
+        assertTrue(result.isPresent());
+        assertEquals("John.Doe", result.get().getUsername());
+        assertEquals("California", result.get().getAddress());
+        assertEquals(dob, result.get().getDateOfBirth());
+        verify(traineeRepository, times(1)).save(any(Trainee.class));
+    }
 //
 //    @Test
 //    @DisplayName("Select Trainee Test by Id - success")

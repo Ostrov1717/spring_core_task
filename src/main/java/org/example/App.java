@@ -8,9 +8,6 @@ import org.example.gym.service.TrainingService;
 import org.example.gym.service.UserService;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
 
 @Slf4j
 public class App {
@@ -18,13 +15,10 @@ public class App {
     public static void main(String[] args) {
 
         var context = new AnnotationConfigApplicationContext(ProjectConfig.class);
-        TraineeService traineeService=context.getBean(TraineeService.class);
-        TrainerService trainerService=context.getBean(TrainerService.class);
-        UserService userservice=context.getBean(UserService.class);
-        TrainingService trainingService=context.getBean(TrainingService.class);
-
-
-
+        TraineeService traineeService = context.getBean(TraineeService.class);
+        TrainerService trainerService = context.getBean(TrainerService.class);
+        UserService userservice = context.getBean(UserService.class);
+        TrainingService trainingService = context.getBean(TrainingService.class);
 //////        1. Create Trainer profile.
 //        log.info(trainerService.create("Brad", "Pitt", TrainingTypeName.RESISTANCE).toString() + "\n");
 ////

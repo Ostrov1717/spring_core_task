@@ -1,7 +1,6 @@
 package org.example.gym.dto.training;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.gym.dto.training.TrainingDTO;
 import org.example.gym.entity.Training;
 
 import java.util.ArrayList;

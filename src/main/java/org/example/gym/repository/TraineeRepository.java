@@ -9,5 +9,4 @@ import java.util.Optional;
 public interface TraineeRepository extends JpaRepository<Trainee, Long> {
     @EntityGraph(attributePaths = "trainers")
     Optional<Trainee> findByUserUsername(String username);
-
 }

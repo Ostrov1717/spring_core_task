@@ -1,9 +1,11 @@
 package org.example.gym.service;
 
 import jakarta.transaction.Transactional;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.gym.dto.trainer.TrainerDTO;
+import org.example.gym.dto.trainer.TrainerMapper;
+import org.example.gym.dto.user.UserDTO;
 import org.example.gym.entity.Trainer;
 import org.example.gym.entity.TrainingType;
 import org.example.gym.entity.TrainingTypeName;
@@ -13,6 +15,7 @@ import org.example.gym.repository.TrainerRepository;
 import org.example.gym.repository.TrainingTypeRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -25,23 +28,22 @@ public class TrainerService {
     private final UserService userService;
 
     @Transactional
-    public Trainer create(@NonNull String firstName, @NonNull String lastName, TrainingTypeName trainingTypeName) {
+    public UserDTO.Response.Login create(String firstName, String lastName, TrainingTypeName trainingTypeName) {
         log.info("Creating a new Trainer: {} {}", firstName, lastName);
         TrainingType specialization = findTrainingType(trainingTypeName);
         String password = userService.generatePassword();
         String username = userService.generateUserName(firstName, lastName);
         Trainer trainer = new Trainer(specialization, new User(firstName, lastName, username, password, false));
         trainerRepository.save(trainer);
-        log.info("Trainer created with username: {}", trainer.getUser().getUsername());
-        return trainer;
+        log.info("Trainer created with username: {}", trainer.getUser().getUsername());        return new UserDTO.Response.Login(trainer.getUser().getUsername(), trainer.getUser().getPassword());
     }
 
     @Transactional
-    public Trainer findByUsername(String username, String password) {
+    public TrainerDTO.Response.TrainerProfile findByUsername(String username, String password) {
         userService.authenticate(username, password);
         log.info("Searching Trainer by username: {}", username);
         Trainer trainer = findTrainerByUsername(username);
-        return trainer;
+        return TrainerMapper.toProfile(trainer);
     }
 
     @Transactional
@@ -50,7 +52,7 @@ public class TrainerService {
     }
 
     @Transactional
-    public Trainer update(String firstName, String lastName, String username, String password, TrainingTypeName trainingTypeName, boolean isActive) {
+    public TrainerDTO.Response.TrainerProfile update(String firstName, String lastName, String username, String password, TrainingTypeName trainingTypeName, boolean isActive) {
         userService.authenticate(username, password);
         log.info("Updating Trainer's data with username: {}", username);
         Trainer trainer = findTrainerByUsername(username);
@@ -60,14 +62,23 @@ public class TrainerService {
         trainer.setSpecialization(specialization);
         trainer.getUser().setActive(isActive);
         log.info("Trainer's data with username: {} has been updated", username);
-        return trainer;
+        return TrainerMapper.toProfile(trainer);
     }
-    public Set<Trainer> getAvailableTrainers(String traineeUsername, String password) {
+    @Transactional
+    public Set<TrainerDTO.Response.TrainerSummury> getAvailableTrainers(String traineeUsername, String password) {
         userService.authenticate(traineeUsername,password);
         log.info("Search trainers  that not assigned on trainee: {}", traineeUsername);
         Set<Trainer> trainers = trainerRepository.findTrainersNotAssignedToTraineeByUsername(traineeUsername);
         log.info("Found {} active trainers for trainee: {}", trainers.size(), traineeUsername);
-        return trainers;
+        return TrainerMapper.toSetTrainerSummury(trainers);
+    }
+    @Transactional
+    public Set<Trainer> getTrainerFromList(Set<TrainerDTO.Response.TrainerUsername> trainersUsernames){
+        Set<Trainer> newTrainers = new HashSet<>();
+        for (TrainerDTO.Response.TrainerUsername trainer : trainersUsernames) {
+            newTrainers.add(findTrainerByUsername(trainer.getUsername()));
+        }
+        return newTrainers;
     }
 
     private TrainingType findTrainingType(TrainingTypeName trainingTypeName) {

@@ -2,7 +2,6 @@ package org.example.gym.service;
 
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.example.gym.entity.Trainee;
 import org.example.gym.entity.User;
 import org.example.gym.exception.AuthenticationException;
 import org.example.gym.exception.UserNotFoundException;
@@ -17,6 +16,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserService {
     private final UserRepository userRepository;
+
     @Autowired
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -32,11 +32,12 @@ public class UserService {
         }
         log.info("Authentication successful for username: {}", username);
     }
+
     @Transactional
     public void changePassword(String username, String oldPassword, String newPassword) {
         authenticate(username, oldPassword);
         log.info("Changing password of User with username: {}", username);
-        User user =findUserByUsername(username);
+        User user = findUserByUsername(username);
         user.setPassword(newPassword);
         log.info("Password successfully changed");
     }
@@ -45,12 +46,14 @@ public class UserService {
     private User findUserByUsername(String username) {
         return userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User with username: " + username + " not found."));
     }
+
     @Transactional
     private boolean updateActiveStatus(String username, boolean isActive) {
         User user = findUserByUsername(username);
         user.setActive(isActive);
         return true;
     }
+
     @Transactional
     public boolean deactivate(String username, String password) {
         authenticate(username, password);
@@ -59,6 +62,7 @@ public class UserService {
         log.info("User with username: {} deactivated", username);
         return deactivated;
     }
+
     @Transactional
     public boolean activate(String username, String password) {
         authenticate(username, password);
@@ -67,6 +71,7 @@ public class UserService {
         log.info("User with username: {} activated", username);
         return activated;
     }
+
     public String generatePassword() {
         Random random = new Random();
         return random.ints(33, 122)
@@ -75,6 +80,7 @@ public class UserService {
                 .mapToObj(c -> String.valueOf((char) c))
                 .collect(Collectors.joining());
     }
+
     @Transactional
     public String generateUserName(String firstName, String lastName) {
         String baseUserName = firstName + "." + lastName;

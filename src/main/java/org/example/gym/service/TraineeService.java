@@ -1,11 +1,12 @@
 package org.example.gym.service;
 
 import jakarta.transaction.Transactional;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.gym.dto.trainee.TraineeDTO;
 import org.example.gym.dto.trainee.TraineeMapper;
+import org.example.gym.dto.trainer.TrainerDTO;
+import org.example.gym.dto.trainer.TrainerMapper;
 import org.example.gym.dto.user.UserDTO;
 import org.example.gym.entity.Trainee;
 import org.example.gym.entity.Trainer;
@@ -50,7 +51,7 @@ public class TraineeService {
     }
 
     @Transactional
-    public Trainee update(String firstName, String lastName, String username, String password, String address, LocalDate dateOfBirth, boolean isActive) {
+    public TraineeDTO.Response.TraineeProfileFull update(String firstName, String lastName, String username, String password, String address, LocalDate dateOfBirth, boolean isActive) {
         userservice.authenticate(username, password);
         log.info("Updating Trainee's data with username: {}", username);
         Trainee trainee = findTraineeByUsername(username);
@@ -60,7 +61,7 @@ public class TraineeService {
         trainee.setAddress(address);
         trainee.setDateOfBirth(dateOfBirth);
         log.info("Trainee's data with username: {} has been updated", username);
-        return trainee;
+        return TraineeMapper.toProfileFull(trainee);
     }
 
     @Transactional
@@ -72,7 +73,7 @@ public class TraineeService {
         log.info("Trainee with username: {} successfully deleted", username);
     }
     @Transactional
-    public Set<Trainer> updateTraineeTrainers(String username,String password, Set<Trainer> newTrainers) {
+    public Set<TrainerDTO.Response.TrainerSummury> updateTraineeTrainers(String username, String password, Set<Trainer> newTrainers) {
         userservice.authenticate(username,password);
         Trainee trainee = findTraineeByUsername(username);
         log.info("Updating trainers for trainee with username: {}", username);
@@ -80,6 +81,6 @@ public class TraineeService {
         trainee.setTrainers(newTrainers);
         traineeRepository.save(trainee);
         log.info("Trainers for trainee with username {} have been successfully updated. New number of trainers: {}", username, newTrainers.size());
-        return trainee.getTrainers();
+        return TrainerMapper.toSetTrainerSummury(trainee.getTrainers());
     }
 }

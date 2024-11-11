@@ -19,7 +19,7 @@ public class Trainer implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long trainerId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "specialization_id", referencedColumnName = "id", nullable = false)
     private TrainingType specialization;
 

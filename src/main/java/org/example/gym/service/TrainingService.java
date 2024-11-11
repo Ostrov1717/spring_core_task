@@ -4,20 +4,21 @@ import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.gym.dto.training.TrainingDTO;
+import org.example.gym.dto.training.TrainingMapper;
+import org.example.gym.entity.Trainee;
+import org.example.gym.entity.Trainer;
 import org.example.gym.entity.Training;
 import org.example.gym.entity.TrainingType;
 import org.example.gym.exception.UserNotFoundException;
 import org.example.gym.repository.TraineeRepository;
 import org.example.gym.repository.TrainerRepository;
-import org.example.gym.entity.Trainee;
-import org.example.gym.entity.Trainer;
 import org.example.gym.repository.TrainingRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -48,18 +49,20 @@ public class TrainingService {
     }
 
     @Transactional
-    public List<Training> findTrainerList(String trainerUsername, LocalDateTime fromDate, LocalDateTime toDate, String traineeName) {
+    public List<TrainingDTO.Response.TrainingProfileForTrainer> findTrainerList(String trainerUsername, LocalDateTime fromDate, LocalDateTime toDate, String traineeName) {
         log.info("Search trainings for trainer: {}", trainerUsername);
-        List<Training> trainings=trainingRepository.findTrainingsByTrainerAndCriteria(trainerUsername, fromDate, toDate, traineeName);
+        List<Training> trainings = trainingRepository.findTrainingsByTrainerAndCriteria(trainerUsername, fromDate, toDate, traineeName);
         log.info("Found {} trainings for trainer: {}", trainings.size(), trainerUsername);
-        return trainings;
+        return TrainingMapper.toListForTrainer(trainings);
     }
 
     @Transactional
-    public List<Training> findTraineeList(String traineeUsername, LocalDateTime fromDate, LocalDateTime toDate, String trainerName, String trainingType) {
+    public List<TrainingDTO.Response.TrainingProfileForTrainee> findTraineeList(String traineeUsername, LocalDateTime fromDate, LocalDateTime toDate, String trainerName, String trainingType) {
         log.info("Search trainings for trainee: {}", traineeUsername);
-        List<Training> trainings=trainingRepository.findTrainingsByTraineeAndCriteria(traineeUsername, fromDate, toDate, trainerName, trainingType);
+        System.out.println(trainerName + " " + traineeUsername);
+        List<Training> trainings = trainingRepository.findTrainingsByTraineeAndCriteria(traineeUsername, fromDate, toDate, trainerName);
         log.info("Found {} trainings for trainee: {}", trainings.size(), traineeUsername);
-        return trainings;
+        System.out.println(trainings.size());
+        return TrainingMapper.toListForTrainee(trainings);
     }
 }

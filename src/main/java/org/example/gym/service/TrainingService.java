@@ -30,7 +30,6 @@ public class TrainingService {
 
     @Transactional
     public void create(@NonNull String traineeUsername, @NonNull String trainerUsername, @NonNull String trainingName, @NonNull LocalDateTime trainingDate, @NonNull Duration duration) {
-
         log.info("Creation of new training: traineeId={}, trainerId={}, name={}, date={}, duration={}",
                 traineeUsername, trainerUsername, trainingName, trainingDate, duration);
         if (trainingName.isBlank()) {
@@ -39,7 +38,6 @@ public class TrainingService {
         }
         Trainee trainee = traineeRepository.findByUserUsername(traineeUsername)
                 .orElseThrow(() -> new UserNotFoundException("Trainee with username: " + traineeUsername + " not found."));
-
         Trainer trainer = trainerRepository.findByUserUsername(trainerUsername)
                 .orElseThrow(() -> new UserNotFoundException("Trainer with username: " + trainerUsername + " not found."));
         TrainingType trainingType = trainer.getSpecialization();
@@ -59,10 +57,8 @@ public class TrainingService {
     @Transactional
     public List<TrainingDTO.Response.TrainingProfileForTrainee> findTraineeList(String traineeUsername, LocalDateTime fromDate, LocalDateTime toDate, String trainerName, String trainingType) {
         log.info("Search trainings for trainee: {}", traineeUsername);
-        System.out.println(trainerName + " " + traineeUsername);
         List<Training> trainings = trainingRepository.findTrainingsByTraineeAndCriteria(traineeUsername, fromDate, toDate, trainerName);
         log.info("Found {} trainings for trainee: {}", trainings.size(), traineeUsername);
-        System.out.println(trainings.size());
         return TrainingMapper.toListForTrainee(trainings);
     }
 }

@@ -18,13 +18,13 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.Set;
 
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class TraineeService {
     private final TraineeRepository traineeRepository;
     private final UserService userservice;
+
     @Transactional
     public UserDTO.Response.Login create(String firstName, String lastName, String address, LocalDate dateOfBirth) {
         log.info("Creating a new Trainee: {} {}", firstName, lastName);
@@ -40,8 +40,8 @@ public class TraineeService {
     public TraineeDTO.Response.TraineeProfile findByUsername(String username, String password) {
         userservice.authenticate(username, password);
         log.info("Searching Trainee by username: {}", username);
-        Trainee trainee=findTraineeByUsername(username);
-        TraineeDTO.Response.TraineeProfile traineeProfile=TraineeMapper.toProfile(trainee);
+        Trainee trainee = findTraineeByUsername(username);
+        TraineeDTO.Response.TraineeProfile traineeProfile = TraineeMapper.toProfile(trainee);
         return traineeProfile;
     }
 
@@ -72,9 +72,10 @@ public class TraineeService {
         traineeRepository.delete(trainee);
         log.info("Trainee with username: {} successfully deleted", username);
     }
+
     @Transactional
     public Set<TrainerDTO.Response.TrainerSummury> updateTraineeTrainers(String username, String password, Set<Trainer> newTrainers) {
-        userservice.authenticate(username,password);
+        userservice.authenticate(username, password);
         Trainee trainee = findTraineeByUsername(username);
         log.info("Updating trainers for trainee with username: {}", username);
         log.info("Current number of trainers: {}", trainee.getTrainers().size());

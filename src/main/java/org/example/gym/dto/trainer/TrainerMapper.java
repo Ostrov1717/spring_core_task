@@ -17,26 +17,27 @@ public class TrainerMapper {
             return null;
         }
         log.debug("Mapping Trainer [{}] to TrainerProfile.", trainer);
-        Set<TraineeDTO.Response.TraineeSummury> trainees=new HashSet<>();
-        for (Trainee trainee:trainer.getTrainees()) {
-            trainees.add(new TraineeDTO.Response.TraineeSummury(trainee.getUser().getUsername(),trainee.getUser().getFirstName(),trainee.getUser().getLastName()));
+        Set<TraineeDTO.Response.TraineeSummury> trainees = new HashSet<>();
+        for (Trainee trainee : trainer.getTrainees()) {
+            trainees.add(new TraineeDTO.Response.TraineeSummury(trainee.getUser().getUsername(), trainee.getUser().getFirstName(), trainee.getUser().getLastName()));
         }
         TrainerDTO.Response.TrainerProfile trainerProfile = new TrainerDTO.Response.TrainerProfile(trainer.getUser().getFirstName(),
-                trainer.getUser().getLastName(),trainer.getSpecialization(),trainer.getUser().isActive(),trainees);
+                trainer.getUser().getLastName(), trainer.getSpecialization(), trainer.getUser().isActive(), trainees);
         log.debug("Mapped basic user info: firstName [{}], lastName [{}], active [{}].",
                 trainerProfile.getFirstName(), trainerProfile.getFirstName(),
                 trainerProfile.isActive());
         return trainerProfile;
     }
+
     public static Set<TrainerDTO.Response.TrainerSummury> toSetTrainerSummury(Set<Trainer> trainers) {
         if (trainers == null) {
             log.warn("Provided Trainers set is null, returning null.");
             return null;
         }
-        Set<TrainerDTO.Response.TrainerSummury> trainerSummurySet=new HashSet<>();
-        for (Trainer trainer:trainers) {
+        Set<TrainerDTO.Response.TrainerSummury> trainerSummurySet = new HashSet<>();
+        for (Trainer trainer : trainers) {
             trainerSummurySet.add(new TrainerDTO.Response.TrainerSummury(trainer.getUser().getUsername(),
-                    trainer.getUser().getFirstName(),trainer.getUser().getLastName(),trainer.getSpecialization()));
+                    trainer.getUser().getFirstName(), trainer.getUser().getLastName(), trainer.getSpecialization()));
         }
         return trainerSummurySet;
     }

@@ -15,14 +15,13 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-@ComponentScan(basePackages = "org.example.gym")
+@ComponentScan(basePackages = "org.example")
 @EnableJpaRepositories(basePackages = "org.example.gym.repository")
 @EnableTransactionManagement
 @EnableWebMvc
-public class ProjectConfig implements WebMvcConfigurer {
+public class ProjectConfig {
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
@@ -38,8 +37,10 @@ public class ProjectConfig implements WebMvcConfigurer {
         transactionManager.setEntityManagerFactory(emf);
         return transactionManager;
     }
+
     @Bean
     public MappingJackson2HttpMessageConverter messageConverter() {
         return new MappingJackson2HttpMessageConverter(new ObjectMapper());
     }
+
 }

@@ -48,7 +48,7 @@ public class Trainee implements Serializable {
 
     @Override
     public String toString() {
-        TraineeDTO.Response.TraineeProfile profile=TraineeMapper.toProfile(this);
+        TraineeDTO.Response.TraineeProfile profile = TraineeMapper.toProfile(this);
         return profile.toString();
     }
 }

@@ -35,19 +35,20 @@ public class TrainerService {
         String username = userService.generateUserName(firstName, lastName);
         Trainer trainer = new Trainer(specialization, new User(firstName, lastName, username, password, false));
         trainerRepository.save(trainer);
-        log.info("Trainer created with username: {}", trainer.getUser().getUsername());        return new UserDTO.Response.Login(trainer.getUser().getUsername(), trainer.getUser().getPassword());
+        log.info("Trainer created with username: {}", trainer.getUser().getUsername());
+        return new UserDTO.Response.Login(trainer.getUser().getUsername(), trainer.getUser().getPassword());
     }
 
     @Transactional
     public TrainerDTO.Response.TrainerProfile findByUsername(String username, String password) {
         userService.authenticate(username, password);
-        log.info("Searching Trainer by username: {}", username);
         Trainer trainer = findTrainerByUsername(username);
         return TrainerMapper.toProfile(trainer);
     }
 
     @Transactional
     public Trainer findTrainerByUsername(String username) {
+        log.info("Searching Trainer by username: {}", username);
         return trainerRepository.findByUserUsername(username).orElseThrow(() -> new UserNotFoundException("Trainer with username: " + username + " not found."));
     }
 
@@ -64,29 +65,36 @@ public class TrainerService {
         log.info("Trainer's data with username: {} has been updated", username);
         return TrainerMapper.toProfile(trainer);
     }
+
     @Transactional
     public Set<TrainerDTO.Response.TrainerSummury> getAvailableTrainers(String traineeUsername, String password) {
-        userService.authenticate(traineeUsername,password);
+        userService.authenticate(traineeUsername, password);
         log.info("Search trainers  that not assigned on trainee: {}", traineeUsername);
         Set<Trainer> trainers = trainerRepository.findTrainersNotAssignedToTraineeByUsername(traineeUsername);
         log.info("Found {} active trainers for trainee: {}", trainers.size(), traineeUsername);
         return TrainerMapper.toSetTrainerSummury(trainers);
     }
+
     @Transactional
-    public Set<Trainer> getTrainerFromList(Set<TrainerDTO.Response.TrainerUsername> trainersUsernames){
+    public Set<Trainer> getTrainerFromList(Set<TrainerDTO.Response.TrainerUsername> trainersUsernames) {
         Set<Trainer> newTrainers = new HashSet<>();
+        log.info("Forming a list of trainers based on a list of their username");
         for (TrainerDTO.Response.TrainerUsername trainer : trainersUsernames) {
             newTrainers.add(findTrainerByUsername(trainer.getUsername()));
         }
+        log.info("List of {} trainers formed", newTrainers.size());
         return newTrainers;
     }
 
     private TrainingType findTrainingType(TrainingTypeName trainingTypeName) {
+        log.info("Comparing the trainer's specialization with the existing ones");
         return trainingTypeRepository.findByTrainingType(trainingTypeName.name())
                 .orElseThrow(() -> new IllegalArgumentException("Specialization not found"));
     }
+
     @Transactional
-    public List<TrainingType> trainingTypes(){
+    public List<TrainingType> trainingTypes() {
+        log.info("Getting available training types");
         return trainingTypeRepository.findAll();
     }
 

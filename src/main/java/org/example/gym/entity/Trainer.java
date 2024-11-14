@@ -43,7 +43,7 @@ public class Trainer implements Serializable {
 
     @Override
     public String toString() {
-        TrainerDTO.Response.TrainerProfile profile=TrainerMapper.toProfile(this);
+        TrainerDTO.Response.TrainerProfile profile = TrainerMapper.toProfile(this);
         return profile.toString();
     }
 }

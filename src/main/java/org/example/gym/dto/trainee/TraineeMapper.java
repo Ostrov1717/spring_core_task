@@ -16,31 +16,32 @@ public class TraineeMapper {
             return null;
         }
         log.debug("Mapping Trainee [{}] to TraineeProfile.", trainee);
-        Set<TrainerDTO.Response.TrainerSummury> trainers=new HashSet<>();
-        for (Trainer trainer:trainee.getTrainers()) {
+        Set<TrainerDTO.Response.TrainerSummury> trainers = new HashSet<>();
+        for (Trainer trainer : trainee.getTrainers()) {
             trainers.add(new TrainerDTO.Response.TrainerSummury(trainer.getUser().getFirstName(),
-                    trainer.getUser().getLastName(),trainer.getUser().getUsername(),trainer.getSpecialization()));
+                    trainer.getUser().getLastName(), trainer.getUser().getUsername(), trainer.getSpecialization()));
         }
         TraineeDTO.Response.TraineeProfile traineeProfile = new TraineeDTO.Response.TraineeProfile(trainee.getUser().getFirstName(),
-                trainee.getUser().getLastName(),trainee.getDateOfBirth(),trainee.getAddress(),trainee.getUser().isActive(),trainers);
+                trainee.getUser().getLastName(), trainee.getDateOfBirth(), trainee.getAddress(), trainee.getUser().isActive(), trainers);
         log.debug("Mapped basic user info: firstName [{}], lastName [{}], active [{}].",
                 traineeProfile.getFirstName(), traineeProfile.getLastName(),
                 traineeProfile.isActive());
         return traineeProfile;
     }
+
     public static TraineeDTO.Response.TraineeProfileFull toProfileFull(Trainee trainee) {
         if (trainee == null) {
             log.warn("Provided Trainee object is null, returning null.");
             return null;
         }
         log.debug("Mapping Trainee [{}] to TraineeProfile.", trainee);
-        Set<TrainerDTO.Response.TrainerSummury> trainers=new HashSet<>();
-        for (Trainer trainer:trainee.getTrainers()) {
+        Set<TrainerDTO.Response.TrainerSummury> trainers = new HashSet<>();
+        for (Trainer trainer : trainee.getTrainers()) {
             trainers.add(new TrainerDTO.Response.TrainerSummury(trainer.getUser().getFirstName(),
-                    trainer.getUser().getLastName(),trainer.getUser().getUsername(),trainer.getSpecialization()));
+                    trainer.getUser().getLastName(), trainer.getUser().getUsername(), trainer.getSpecialization()));
         }
-        TraineeDTO.Response.TraineeProfileFull traineeProfile = new TraineeDTO.Response.TraineeProfileFull(trainee.getUser().getUsername(),trainee.getUser().getFirstName(),
-                trainee.getUser().getLastName(),trainee.getDateOfBirth(),trainee.getAddress(),trainee.getUser().isActive(),trainers);
+        TraineeDTO.Response.TraineeProfileFull traineeProfile = new TraineeDTO.Response.TraineeProfileFull(trainee.getUser().getUsername(), trainee.getUser().getFirstName(),
+                trainee.getUser().getLastName(), trainee.getDateOfBirth(), trainee.getAddress(), trainee.getUser().isActive(), trainers);
         log.debug("Mapped basic user info: firstName [{}], lastName [{}], active [{}].",
                 traineeProfile.getFirstName(), traineeProfile.getLastName(),
                 traineeProfile.isActive());
